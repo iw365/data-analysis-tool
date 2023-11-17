@@ -2,10 +2,16 @@ import tkinter as tk
 import customtkinter as ctk
 import os
 
+from settings import *
+
 class left_frame(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent, width=600, height=600, fg_color='#FF0000', corner_radius = 0)
         self.grid_propagate(False)
+        #self.pack_propagate(False)
+        
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
         self.initialise_ui()
 
     def initialise_ui(self):
@@ -28,7 +34,7 @@ class right_frame(ctk.CTkFrame):
 class root(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Data Analysis Tool")
+        self.title("Data Analysis Tool Launcher")
         self.geometry('1000x600')
         #self.iconbitmap('classes/empty.ico') #change icon
         ctk.set_appearance_mode("Dark")
