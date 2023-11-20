@@ -5,23 +5,29 @@ from settings import *
 
 class middle_sub_frame_top(ctk.CTkFrame):
     def __init__(self, parent, width, height):
-        super().__init__(parent, width=960, height=180, fg_color='#FFFF00', corner_radius = 0)
+        self.width = width
+        self.height = height/6
+        super().__init__(parent, width=self.width, height=self.height, fg_color='#FFFF00', corner_radius = 0)
         self.initialise_ui()
         
     def initialise_ui(self):
         pass
 
 class middle_sub_frame_middle(ctk.CTkFrame):
-    def __init__(self, parent):
-        super().__init__(parent, width=960, height=720, fg_color='#00FF00', corner_radius = 0)
+    def __init__(self, parent, width, height):
+        self.width = width
+        self.height = (height/6)*4
+        super().__init__(parent, width=self.width, height=self.height, fg_color='#00FF00', corner_radius = 0)
         self.initialise_ui()
         
     def initialise_ui(self):
         pass
 
 class middle_sub_frame_bottom(ctk.CTkFrame):
-    def __init__(self, parent):
-        super().__init__(parent, width=960, height=180, fg_color='#00FFFF', corner_radius = 0)
+    def __init__(self, parent, width, height):
+        self.width = width
+        self.height = height/6
+        super().__init__(parent, width=self.width, height=self.height, fg_color='#00FFFF', corner_radius = 0)
         self.initialise_ui()
 
     def initialise_ui(self):
@@ -31,7 +37,6 @@ class left_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = width/4
         self.height = height
-        print(self.width)
         super().__init__(parent, width=self.width, height=self.height, fg_color='#FF0000', corner_radius = 0)
         self.initialise_ui()
 
@@ -47,8 +52,8 @@ class middle_frame(ctk.CTkFrame):
 
     def initialise_ui(self):
         self.middle_sub_frame_top = middle_sub_frame_top(parent = self, width = self.width, height = self.height)
-        self.middle_sub_frame_middle = middle_sub_frame_middle(parent = self)
-        self.middle_sub_frame_bottom = middle_sub_frame_bottom(parent = self)
+        self.middle_sub_frame_middle = middle_sub_frame_middle(parent = self, width = self.width, height = self.height)
+        self.middle_sub_frame_bottom = middle_sub_frame_bottom(parent = self, width = self.width, height = self.height)
         
         self.middle_sub_frame_top.grid(row=0, column=0, padx=0, pady=0)
         self.middle_sub_frame_middle.grid(row=1, column=0, padx=0, pady=0)

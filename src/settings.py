@@ -1,6 +1,9 @@
 width = 1920
 height = 1080
 
+launcher_width = 1000
+launcher_height = 600
+
 # FONTS #
 
 
