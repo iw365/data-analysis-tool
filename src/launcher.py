@@ -9,14 +9,15 @@ class left_sub_frame_top(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = width
         self.height = height/4
-        super().__init__(parent, width=self.width, height=self.height, fg_color='#0000FF', corner_radius = 0)
+        super().__init__(parent, width=self.width, height=self.height, fg_color='#3F3F3F', corner_radius = 0)
         self.grid_propagate(False)
         self.initialise_ui()
         
     def initialise_ui(self):
-        pass
-        # logo = ctk.CTkImage(light_image=Image.open("assets/logo.png"), dark_image=Image.open("assets/logo.png"), size=(self.width, self.height))
-        # image_label = ctk.CTkLabel(master = self, image=logo, text="")
+        logo = ctk.CTkImage(light_image=Image.open("assets/logo.png"), dark_image=Image.open("assets/logo.png"), size=(self.width, self.height))
+        image_label = ctk.CTkLabel(master = self, image=logo, text="")
+        
+        image_label.pack()
         
 class left_sub_frame_bottom(ctk.CTkFrame):
     def __init__(self, parent, width, height):
