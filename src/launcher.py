@@ -5,6 +5,22 @@ import os
 
 from settings import *
 
+class option_holder(ctk.CTkFrame):
+    def __init__(self, parent, width, height):
+        self.width = width - 10
+        self.height = height - 10
+        super().__init__(parent, width = self.width, height = self.height, fg_color = '#3F3F3F', border_width = 5, border_color = '#FFFFFF')
+        self.grid_propagate(True)
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+        app_launch_button = ctk.CTkButton(master=self, text='launch app', command = self.launch_app)
+        app_launch_button.grid(row=0, column=0, padx=20, pady=20)
+        
+    def launch_app(self):
+        root.destroy()
+        os.system('python3 main.py')
+
 class left_sub_frame_top(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = width
@@ -28,13 +44,8 @@ class left_sub_frame_bottom(ctk.CTkFrame):
         self.initialise_ui()
         
     def initialise_ui(self):
-        app_launch_button = ctk.CTkButton(master=self, text='launch app', command = self.launch_app)
-        app_launch_button.grid(row=0, column=0, padx=0, pady=0)
-        
-    def launch_app(self):
-        root.destroy()
-        
-        os.system('python3 main.py')
+        self.option_holder = option_holder(parent = self, width = self.width, height = self.height)
+        self.option_holder.pack(padx = 20, pady = 20)
 
 class left_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
