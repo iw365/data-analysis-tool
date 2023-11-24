@@ -99,7 +99,7 @@ class right_frame(ctk.CTkFrame):
         self.width = (width/5)*2
         self.height = height
         super().__init__(parent, width=self.width, height=self.height, fg_color='#656464', corner_radius = 0)
-        self.grid_propagate(True)
+        self.pack_propagate(False)#pack false
         self.initialise_ui()
 
     def initialise_ui(self):
