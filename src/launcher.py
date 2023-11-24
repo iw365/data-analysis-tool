@@ -7,14 +7,14 @@ from settings import *
 
 class option_holder(ctk.CTkFrame):
     def __init__(self, parent, width, height):
-        self.width = width - 10
-        self.height = height - 10
-        super().__init__(parent, width = self.width, height = self.height, fg_color = '#3F3F3F', border_width = 5, border_color = '#FFFFFF')
+        self.width = width
+        self.height = height
+        super().__init__(parent, width = self.width, height = self.height, fg_color = '#3F3F3F', border_width = 5, border_color = '#FFFFFF', corner_radius = 20)
         self.grid_propagate(True)
         self.initialise_ui()
         
     def initialise_ui(self):
-        app_launch_button = ctk.CTkButton(master=self, text='launch app', command = self.launch_app)
+        app_launch_button = ctk.CTkButton(master=self, width = self.width - 80, height = self.height / 5, text='launch app', command = self.launch_app)
         app_launch_button.grid(row=0, column=0, padx=20, pady=20)
         
     def launch_app(self):
@@ -39,19 +39,19 @@ class left_sub_frame_bottom(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = width
         self.height = (height/4)*3
-        super().__init__(parent, width=self.width, height=self.height, fg_color='#FFFF00', corner_radius = 0)
+        super().__init__(parent, width=self.width, height=self.height, fg_color='#3F3F3F', corner_radius = 0)
         self.grid_propagate(False)
         self.initialise_ui()
         
     def initialise_ui(self):
         self.option_holder = option_holder(parent = self, width = self.width, height = self.height)
-        self.option_holder.pack(padx = 20, pady = 20)
+        self.option_holder.pack(padx = 0, pady = 20)
 
 class left_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = (width/5)*3
         self.height = height
-        super().__init__(parent, width=self.width, height=self.height, fg_color='#FF0000', corner_radius = 0)
+        super().__init__(parent, width=self.width, height=self.height, fg_color='#3F3F3F', corner_radius = 0)
         self.grid_propagate(False)
         #self.pack_propagate(False)
         
@@ -66,16 +66,45 @@ class left_frame(ctk.CTkFrame):
         self.left_sub_frame_top.grid(row = 0, column = 0, padx = 0, pady = 0)
         self.left_sub_frame_bottom.grid(row = 1, column = 0, padx = 0, pady = 0)
 
+class settings_menu_holder(ctk.CTkFrame):
+    def __init__(self, parent, width, height):
+        self.width = width
+        self.height = height
+        super().__init__(parent, width = self.width, height = self.height, fg_color = '#FF0000', border_width = 5, border_color = '#FFFFFF', corner_radius = 20)
+        self.grid_propagate(True)
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+        app_launch_button = ctk.CTkButton(master=self, width = self.width - 80, height = self.height / 5, text='launch app', command = self.launch_app)
+        app_launch_button.grid(row=0, column=0, padx=20, pady=20)
+        
+    def launch_app(self):
+        root.destroy()
+        os.system('python3 main.py')
+
+class right_sub_frame(ctk.CTkFrame):
+    def __init__(self, parent, width, height):
+        self.width = width
+        self.height = height
+        super().__init__(parent, width=self.width, height=self.height, fg_color='#FFFF00', corner_radius = 0)
+        self.grid_propagate(False)
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+        self.settings_menu_holder = settings_menu_holder(parent = self, width = self.width, height = self.height)
+        self.settings_menu_holder.pack(padx = 0, pady = 20)
+
 class right_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = (width/5)*2
         self.height = height
-        super().__init__(parent, width=self.width, height=self.height, fg_color='#00FF00', corner_radius = 0)
-        self.grid_propagate(False)
+        super().__init__(parent, width=self.width, height=self.height, fg_color='#656464', corner_radius = 0)
+        self.pack_propagate(False)#pack false
         self.initialise_ui()
 
     def initialise_ui(self):
-        pass
+        self.right_sub_frame = right_sub_frame(parent = self, width = self.width, height = self.height)
+        self.right_sub_frame.pack(padx = 0, pady = 20)
 
 class root(tk.Tk):
     def __init__(self, width, height):
