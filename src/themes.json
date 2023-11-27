@@ -1,0 +1,14 @@
+{
+    "light" : {
+        "example-theme" : {
+            "primary" : "#9999A1",
+            "secondary" : "#E6E6E9",
+            "accent1" : "#0C1B33",
+            "accent2" : "#F18F01",
+            "spare" : "#F4F4F6"
+        }
+    },
+    "dark" : {
+        
+    }
+}

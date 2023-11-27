@@ -1,3 +1,7 @@
+active_theme_type = 'light'
+active_light_theme = 'example-theme'
+active_dark_theme = 'example-theme'
+
 width = 1920
 height = 1080
 

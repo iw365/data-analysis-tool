@@ -65,7 +65,7 @@ class left_sub_frame_bottom(ctk.CTkFrame):
         
     def initialise_ui(self):
         self.option_holder = option_holder(parent = self, width = self.width, height = self.height)
-        self.option_holder.pack(padx = 0, pady = 20, ipadx = 0, ipady = 50)
+        self.option_holder.pack(padx = 0, pady = 20, ipadx = 0, ipady = 0)
 
 class left_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
