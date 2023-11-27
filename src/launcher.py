@@ -1,6 +1,8 @@
 import tkinter as tk
 import customtkinter as ctk
 from PIL import Image
+import subprocess
+import platform
 import os
 
 from settings import *
@@ -17,9 +19,27 @@ class option_holder(ctk.CTkFrame):
         app_launch_button = ctk.CTkButton(master=self, width = self.width - 80, height = self.height / 5, text='launch app', command = self.launch_app)
         app_launch_button.grid(row=0, column=0, padx=20, pady=20)
         
+        open_root_button = ctk.CTkButton(master=self, width = self.width - 80, height = self.height / 5, text='open root folder', command = self.open_root_folder)
+        open_root_button.grid(row=1, column=0, padx=20, pady=20)
+        
     def launch_app(self):
         root.destroy()
         os.system('python3 main.py')
+        
+    def open_root_folder(self):
+        current_dir = os.getcwd()
+        parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
+        system = platform.system()
+        
+        match system:
+            case 'Windows':
+                subprocess.Popen(f'explorer "{parent_dir}"')
+            case 'Linux':
+                subprocess.Popen(['xdg-open', parent_dir])
+            case 'Darwin':
+                subprocess.Popen(['open', parent_dir])
+            case _:
+                print("Unsupported operating system") #!ERROR LOG NEEDED
 
 class left_sub_frame_top(ctk.CTkFrame):
     def __init__(self, parent, width, height):
@@ -31,7 +51,7 @@ class left_sub_frame_top(ctk.CTkFrame):
         
     def initialise_ui(self):
         logo = ctk.CTkImage(light_image=Image.open("assets/logo.png"), dark_image=Image.open("assets/logo.png"), size=(self.width, self.height))
-        image_label = ctk.CTkLabel(master = self, image=logo, text="")
+        image_label = ctk.CTkLabel(master = self, image=logo, text="", corner_radius=0)
         
         image_label.pack()
         
@@ -45,7 +65,7 @@ class left_sub_frame_bottom(ctk.CTkFrame):
         
     def initialise_ui(self):
         self.option_holder = option_holder(parent = self, width = self.width, height = self.height)
-        self.option_holder.pack(padx = 0, pady = 20)
+        self.option_holder.pack(padx = 0, pady = 20, ipadx = 0, ipady = 50)
 
 class left_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
