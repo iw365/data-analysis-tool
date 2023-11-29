@@ -6,6 +6,13 @@
             "accent1" : "#0C1B33",
             "accent2" : "#F18F01",
             "spare" : "#F4F4F6"
+        },
+        "example-theme2": {
+            "primary" : "#848C8E",
+            "secondary" : "#F1F2EE",
+            "accent1" : "#435058",
+            "accent2" : "#C9E83D",
+            "spare" : "#D7D1D0"
         }
     },
     "dark" : {

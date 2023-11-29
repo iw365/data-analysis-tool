@@ -63,38 +63,57 @@ entry_1.pack(pady=10, padx=10)
 optionmenu_1 = customtkinter.CTkOptionMenu(frame_1, values=["Option 1", "Option 2", "Option 42 long long long..."],
                                             fg_color=accent1,
                                             button_color=accent1,
-                                            button_hover_color=accent2)
+                                            button_hover_color=accent2,
+                                            dropdown_fg_color=accent1,
+                                            dropdown_hover_color=accent2,
+                                            dropdown_text_color="#FFFFFF")
 optionmenu_1.pack(pady=10, padx=10)
 optionmenu_1.set("CTkOptionMenu")
 
-combobox_1 = customtkinter.CTkComboBox(frame_1, values=["Option 1", "Option 2", "Option 42 long long long..."])
+combobox_1 = customtkinter.CTkComboBox(frame_1, values=["Option 1", "Option 2", "Option 42 long long long..."],
+                                            border_color=accent1,
+                                            button_color=accent2,
+                                            dropdown_fg_color=accent1,
+                                            dropdown_hover_color=accent2,
+                                            dropdown_text_color="#FFFFFF")
+
 combobox_1.pack(pady=10, padx=10)
 combobox_1.set("CTkComboBox")
 
-checkbox_1 = customtkinter.CTkCheckBox(master=frame_1)
+checkbox_1 = customtkinter.CTkCheckBox(master=frame_1, border_color=accent1, fg_color=accent2, hover_color=accent1)
 checkbox_1.pack(pady=10, padx=10)
 
 radiobutton_var = customtkinter.IntVar(value=1)
 
-radiobutton_1 = customtkinter.CTkRadioButton(master=frame_1, variable=radiobutton_var, value=1)
+radiobutton_1 = customtkinter.CTkRadioButton(master=frame_1, variable=radiobutton_var, value=1, fg_color=accent2, hover_color=accent2)
 radiobutton_1.pack(pady=10, padx=10)
 
-radiobutton_2 = customtkinter.CTkRadioButton(master=frame_1, variable=radiobutton_var, value=2)
+radiobutton_2 = customtkinter.CTkRadioButton(master=frame_1, variable=radiobutton_var, value=2, fg_color=accent2, hover_color=accent2)
 radiobutton_2.pack(pady=10, padx=10)
 
-switch_1 = customtkinter.CTkSwitch(master=frame_1)
+switch_1 = customtkinter.CTkSwitch(master=frame_1, fg_color=spare, button_color=accent1, progress_color=accent2)
 switch_1.pack(pady=10, padx=10)
 
-text_1 = customtkinter.CTkTextbox(master=frame_1, width=200, height=70)
+text_1 = customtkinter.CTkTextbox(master=frame_1, width=200, height=70, state="normal", text_color=accent1, scrollbar_button_color=accent1)
 text_1.pack(pady=10, padx=10)
 text_1.insert("0.0", "CTkTextbox\n\n\n\n")
 
-segmented_button_1 = customtkinter.CTkSegmentedButton(master=frame_1, values=["CTkSegmentedButton", "Value 2"])
-segmented_button_1.pack(pady=10, padx=10)
+# segmented_button_1 = customtkinter.CTkSegmentedButton(master=frame_1, values=["CTkSegmentedButton", "Value 2"])
+# segmented_button_1.pack(pady=10, padx=10)
 
-tabview_1 = customtkinter.CTkTabview(master=frame_1, width=300)
+tabview_1 = customtkinter.CTkTabview(master=frame_1,
+                                            width=300,
+                                            text_color=accent1,
+                                            fg_color=spare,
+                                            segmented_button_fg_color=accent1,
+                                            segmented_button_selected_color = secondary, ##WILL BE SECONDARY DARKER SHADE
+                                            segmented_button_unselected_color = spare,
+                                            segmented_button_selected_hover_color=accent2,
+                                            segmented_button_unselected_hover_color=accent2)
 tabview_1.pack(pady=10, padx=10)
 tabview_1.add("CTkTabview")
 tabview_1.add("Tab 2")
+tabview_1.add("Tab 3")
+tabview_1.add("Tab 4")
 
 app.mainloop()
