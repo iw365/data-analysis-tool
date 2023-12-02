@@ -24,12 +24,17 @@ class option_holder(ctk.CTkFrame):
         
     def launch_app(self):
         root.destroy()
-        os.system('python3 main.py')
+        match system:
+            case 'Windows':
+                os.system('python main.py')
+            case 'Linux':
+                os.system('python3 main.py')
+            case _:
+                print("Unsupported operating system") #!ERROR LOG NEEDED
         
     def open_root_folder(self):
         current_dir = os.getcwd()
         parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
-        system = platform.system()
         
         match system:
             case 'Windows':
@@ -145,6 +150,8 @@ class root(tk.Tk):
         
         self.left_frame.grid(row=0, column=0, padx=0, pady=0)
         self.right_frame.grid(row=0, column=1, padx=0, pady=0)
+
+system = platform.system()
 
 if __name__ == "__main__":
     root = root(launcher_width, launcher_height)
