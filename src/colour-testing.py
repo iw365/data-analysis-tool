@@ -10,8 +10,10 @@ with open('themes.json', 'r') as file:
 match active_theme_type:
     case 'light':
         theme = themes_data["light"][f"{active_light_theme}"]
+        customtkinter.set_appearance_mode("light")  # Modes: "System" (standard), "Dark", "Light"
     case 'dark':
         theme = themes_data["dark"][f"{active_dark_theme}"]
+        customtkinter.set_appearance_mode("dark")  # Modes: "System" (standard), "Dark", "Light"
 
 primary = theme['primary']
 secondary = theme['secondary']
@@ -21,7 +23,6 @@ spare = theme['spare']
 
 #customtkinter.set_ctk_parent_class(tkinterDnD.Tk)
 
-customtkinter.set_appearance_mode("light")  # Modes: "System" (standard), "Dark", "Light"
 #customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 app = customtkinter.CTk()
@@ -33,10 +34,8 @@ app.title("CustomTkinter simple_example.py")
 def button_callback():
     print("Button click", combobox_1.get())
 
-
 def slider_callback(value):
     progressbar_1.set(value)
-
 
 background = customtkinter.CTkFrame(master=app, fg_color=primary)
 background.pack(pady=0, padx=0, fill="both", expand=True)
@@ -47,34 +46,35 @@ frame_1.pack(pady=20, padx=60, fill="both", expand=True)
 label_1 = customtkinter.CTkLabel(master=frame_1, justify=customtkinter.LEFT)
 label_1.pack(pady=10, padx=10)
 
-progressbar_1 = customtkinter.CTkProgressBar(master=frame_1, progress_color=accent1, fg_color=spare)
+progressbar_1 = customtkinter.CTkProgressBar(master=frame_1, progress_color=(accent1, accent2), fg_color=(spare, primary))
 progressbar_1.pack(pady=10, padx=10)
 
-button_1 = customtkinter.CTkButton(master=frame_1, command=button_callback, fg_color=accent1)
+button_1 = customtkinter.CTkButton(master=frame_1, command=button_callback, fg_color=(accent1, primary))
 button_1.pack(pady=10, padx=10)
 
-slider_1 = customtkinter.CTkSlider(master=frame_1, command=slider_callback, from_=0, to=1, button_color=accent1, fg_color=spare, progress_color=accent2)
+slider_1 = customtkinter.CTkSlider(master=frame_1, command=slider_callback, from_=0, to=1, button_color=(accent1, primary), fg_color=spare, progress_color=accent2)
 slider_1.pack(pady=10, padx=10)
 slider_1.set(0.5)
 
-entry_1 = customtkinter.CTkEntry(master=frame_1, placeholder_text="CTkEntry", border_color=accent1, fg_color=secondary)
+entry_1 = customtkinter.CTkEntry(master=frame_1, placeholder_text="CTkEntry", border_color=(accent1, primary), fg_color=secondary)
 entry_1.pack(pady=10, padx=10)
 
 optionmenu_1 = customtkinter.CTkOptionMenu(frame_1, values=["Option 1", "Option 2", "Option 42 long long long..."],
-                                            fg_color=accent1,
-                                            button_color=accent1,
-                                            button_hover_color=accent2,
-                                            dropdown_fg_color=accent1,
-                                            dropdown_hover_color=accent2,
+                                            fg_color=(accent1, primary),
+                                            button_color=(accent1, primary),
+                                            button_hover_color=accent2, #REPLACE WITH DARK SHADE (only on light theme mode)
+                                            dropdown_fg_color=(accent1, primary),
+                                            dropdown_hover_color=accent2, #REPLACE WITH DARK SHADE (only on light theme mode)
                                             dropdown_text_color="#FFFFFF")
 optionmenu_1.pack(pady=10, padx=10)
 optionmenu_1.set("CTkOptionMenu")
 
 combobox_1 = customtkinter.CTkComboBox(frame_1, values=["Option 1", "Option 2", "Option 42 long long long..."],
+                                            fg_color=(secondary, primary),
                                             border_color=accent1,
                                             button_color=accent2,
-                                            dropdown_fg_color=accent1,
-                                            dropdown_hover_color=accent2,
+                                            dropdown_fg_color=(accent1, primary),
+                                            dropdown_hover_color=(accent2, accent2), ##REPLACE WITH DARK SHADE  (only on light theme mode)
                                             dropdown_text_color="#FFFFFF")
 
 combobox_1.pack(pady=10, padx=10)
@@ -85,16 +85,16 @@ checkbox_1.pack(pady=10, padx=10)
 
 radiobutton_var = customtkinter.IntVar(value=1)
 
-radiobutton_1 = customtkinter.CTkRadioButton(master=frame_1, variable=radiobutton_var, value=1, fg_color=accent2, hover_color=accent2)
+radiobutton_1 = customtkinter.CTkRadioButton(master=frame_1, variable=radiobutton_var, value=1, fg_color=accent2, hover_color=accent2, border_color=(accent1, primary))
 radiobutton_1.pack(pady=10, padx=10)
 
-radiobutton_2 = customtkinter.CTkRadioButton(master=frame_1, variable=radiobutton_var, value=2, fg_color=accent2, hover_color=accent2)
+radiobutton_2 = customtkinter.CTkRadioButton(master=frame_1, variable=radiobutton_var, value=2, fg_color=accent2, hover_color=accent2, border_color=(accent1, primary))
 radiobutton_2.pack(pady=10, padx=10)
 
-switch_1 = customtkinter.CTkSwitch(master=frame_1, fg_color=spare, button_color=accent1, progress_color=accent2)
+switch_1 = customtkinter.CTkSwitch(master=frame_1, fg_color=spare, button_color=(accent1, primary), progress_color=accent2)
 switch_1.pack(pady=10, padx=10)
 
-text_1 = customtkinter.CTkTextbox(master=frame_1, width=200, height=70, state="normal", text_color=accent1, scrollbar_button_color=accent1)
+text_1 = customtkinter.CTkTextbox(master=frame_1, width=200, height=70, state="normal", text_color=(accent1, '#FFFFFF'), scrollbar_button_color=(accent1, spare), fg_color=(spare, primary), border_color=(accent1, spare), border_width=3, corner_radius=10)
 text_1.pack(pady=10, padx=10)
 text_1.insert("0.0", "CTkTextbox\n\n\n\n")
 
@@ -106,8 +106,8 @@ tabview_1 = customtkinter.CTkTabview(master=frame_1,
                                             text_color=accent1,
                                             fg_color=spare,
                                             segmented_button_fg_color=accent1,
-                                            segmented_button_selected_color = secondary, ##WILL BE SECONDARY DARKER SHADE
-                                            segmented_button_unselected_color = spare,
+                                            segmented_button_selected_color=accent2,
+                                            segmented_button_unselected_color=spare,
                                             segmented_button_selected_hover_color=accent2,
                                             segmented_button_unselected_hover_color=accent2)
 tabview_1.pack(pady=10, padx=10)

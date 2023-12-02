@@ -1,9 +1,11 @@
-active_theme_type = 'light'
+active_theme_type = 'dark'
 active_light_theme = 'example-light-theme'
 active_dark_theme = 'example-dark-theme'
 
 width = 1920
 height = 1080
+# width = 1280
+# height = 720
 
 launcher_width = 1000
 launcher_height = 600
