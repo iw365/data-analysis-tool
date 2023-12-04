@@ -94,7 +94,7 @@ radiobutton_2.pack(pady=10, padx=10)
 switch_1 = customtkinter.CTkSwitch(master=frame_1, fg_color=spare, button_color=(accent1, primary), progress_color=accent2)
 switch_1.pack(pady=10, padx=10)
 
-text_1 = customtkinter.CTkTextbox(master=frame_1, width=200, height=70, state="normal", text_color=(accent1, '#FFFFFF'), scrollbar_button_color=(accent1, spare), fg_color=(spare, primary), border_color=(accent1, spare), border_width=3, corner_radius=10)
+text_1 = customtkinter.CTkTextbox(master=frame_1, width=200, height=70, state="normal", text_color=(accent1, '#FFFFFF'), scrollbar_button_color=(accent1, spare), fg_color=(spare, primary), border_color=(accent1, accent1), border_width=3, corner_radius=10)
 text_1.pack(pady=10, padx=10)
 text_1.insert("0.0", "CTkTextbox\n\n\n\n")
 
@@ -104,10 +104,12 @@ text_1.insert("0.0", "CTkTextbox\n\n\n\n")
 tabview_1 = customtkinter.CTkTabview(master=frame_1,
                                             width=300,
                                             text_color=accent1,
-                                            fg_color=spare,
+                                            fg_color=primary,
+                                            border_width=3,
+                                            border_color=accent1,
                                             segmented_button_fg_color=accent1,
                                             segmented_button_selected_color=accent2,
-                                            segmented_button_unselected_color=spare,
+                                            segmented_button_unselected_color=secondary,
                                             segmented_button_selected_hover_color=accent2,
                                             segmented_button_unselected_hover_color=accent2)
 tabview_1.pack(pady=10, padx=10)
