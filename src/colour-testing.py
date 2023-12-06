@@ -96,7 +96,7 @@ switch_1.pack(pady=10, padx=10)
 
 text_1 = customtkinter.CTkTextbox(master=frame_1, width=200, height=70, state="normal", text_color=(accent1, '#FFFFFF'), scrollbar_button_color=(accent1, spare), fg_color=(spare, primary), border_color=(accent1, accent1), border_width=3, corner_radius=10)
 text_1.pack(pady=10, padx=10)
-text_1.insert("0.0", "CTkTextbox\n\n\n\n")
+text_1.insert("0.0", "CTkTextbox\n\n\n\n\n\n\n\n")
 
 # segmented_button_1 = customtkinter.CTkSegmentedButton(master=frame_1, values=["CTkSegmentedButton", "Value 2"])
 # segmented_button_1.pack(pady=10, padx=10)
@@ -104,7 +104,7 @@ text_1.insert("0.0", "CTkTextbox\n\n\n\n")
 tabview_1 = customtkinter.CTkTabview(master=frame_1,
                                             width=300,
                                             text_color=accent1,
-                                            fg_color=primary,
+                                            fg_color=(secondary, primary),
                                             border_width=3,
                                             border_color=accent1,
                                             segmented_button_fg_color=accent1,

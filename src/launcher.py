@@ -6,6 +6,7 @@ import platform
 import os
 
 from settings import *
+from launcher_functions import *
 
 class option_holder(ctk.CTkFrame):
     def __init__(self, parent, width, height):
@@ -16,21 +17,15 @@ class option_holder(ctk.CTkFrame):
         self.initialise_ui()
         
     def initialise_ui(self):
-        app_launch_button = ctk.CTkButton(master=self, width = self.width - 80, height = self.height / 5, text='launch app', command = self.launch_app)
+        app_launch_button = ctk.CTkButton(master=self, width = self.width - 80, height = self.height / 5, text='launch app', command = self.launch_app_call)
         app_launch_button.grid(row=0, column=0, padx=20, pady=20)
         
         open_root_button = ctk.CTkButton(master=self, width = self.width - 80, height = self.height / 5, text='open root folder', command = self.open_root_folder)
         open_root_button.grid(row=1, column=0, padx=20, pady=20)
         
-    def launch_app(self):
-        root.destroy()
-        match system:
-            case 'Windows':
-                os.system('python main.py')
-            case 'Linux':
-                os.system('python3 main.py')
-            case _:
-                print("Unsupported operating system") #!ERROR LOG NEEDED
+    def launch_app_call(self):
+        # print(launcher_permittivity_enabled.get())
+        launch_app_reg(root, 'main.py')
         
     def open_root_folder(self):
         current_dir = os.getcwd()
@@ -41,7 +36,7 @@ class option_holder(ctk.CTkFrame):
                 subprocess.Popen(f'explorer "{parent_dir}"')
             case 'Linux':
                 subprocess.Popen(['xdg-open', parent_dir])
-            case 'Darwin':
+            case 'Darwin': #NOT FULLY SUPPORTED
                 subprocess.Popen(['open', parent_dir])
             case _:
                 print("Unsupported operating system") #!ERROR LOG NEEDED
@@ -95,24 +90,22 @@ class settings_menu_holder(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = width
         self.height = height
-        super().__init__(parent, width = self.width, height = self.height, fg_color = '#FF0000', border_width = 5, border_color = '#FFFFFF', corner_radius = 20)
+        super().__init__(parent, width = self.width, height = self.height, fg_color = '#3F3F3F', border_width = 5, border_color = '#FFFFFF', corner_radius = 20)
         self.grid_propagate(True)
         self.initialise_ui()
         
     def initialise_ui(self):
-        app_launch_button = ctk.CTkButton(master=self, width = self.width - 80, height = self.height / 5, text='launch app', command = self.launch_app)
-        app_launch_button.grid(row=0, column=0, padx=20, pady=20)
-        
-    def launch_app(self):
-        root.destroy()
-        os.system('python3 main.py')
+        self.launcher_permittivity_enabled=ctk.IntVar(value=1)
+        self.launcher_permittivity_switch=ctk.CTkSwitch(master=self, text='Keep Launcher Open', variable=self.launcher_permittivity_enabled, onvalue=1, offvalue=0)
+        self.launcher_permittivity_switch.grid(row=0, column=0, padx=50, pady=20)
 
 class right_sub_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = width
         self.height = height
-        super().__init__(parent, width=self.width, height=self.height, fg_color='#FFFF00', corner_radius = 0)
+        super().__init__(parent, width=self.width, height=self.height, fg_color='#656464', corner_radius = 0)
         self.grid_propagate(False)
+        self.pack_propagate(True)
         self.initialise_ui()
         
     def initialise_ui(self):
@@ -124,7 +117,7 @@ class right_frame(ctk.CTkFrame):
         self.width = (width/5)*2
         self.height = height
         super().__init__(parent, width=self.width, height=self.height, fg_color='#656464', corner_radius = 0)
-        self.pack_propagate(False)#pack false
+        self.pack_propagate(False)
         self.initialise_ui()
 
     def initialise_ui(self):
