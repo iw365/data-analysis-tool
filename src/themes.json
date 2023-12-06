@@ -20,6 +20,13 @@
             "accent1" : "#456990",
             "accent2" : "#FE654F",
             "spare" : "#D8E1E9"
+        },
+        "example-light-theme4": {
+            "primary" : "#D2D4C8",
+            "secondary" : "#E0E2DB",
+            "accent1" : "#2E3532",
+            "accent2" : "#CE7B91",
+            "spare" : "#D3EFBD"
         }
     },
     "dark" : {
