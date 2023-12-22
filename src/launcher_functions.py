@@ -6,7 +6,9 @@ system = platform.system()
 # app - the app to close
 # file - the file to launch (not including .py)
 
-def launch_app_reg(app, file):
+def launch_app_reg(file):
+    
+    #launch new app
     match system:
         case 'Windows':
             os.system(f'python {file}')

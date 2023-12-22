@@ -4,7 +4,6 @@ import json
 
 from settings import active_light_theme, active_dark_theme, active_theme_type, width, height
 
-
 class middle_sub_frame_top(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = width
@@ -110,6 +109,27 @@ class exit_dialogue_window(ctk.CTkToplevel):
         super().__init__(parent)
         self.geometry('640x360')
         self.initialise_ui()
+        
+    def initialise_ui(self):
+        self.title("Exit")
+        self.resizable(False, False)
+        self.focus_force()
+        self.grab_set()
+        
+        self.exit_label = ctk.CTkLabel(master=self, text="Are you sure you want to exit?", fg_color=primary, text_color=accent1, font=("Arial", 20))
+        self.exit_label.pack(pady=20, padx=20)
+        
+        self.exit_button = ctk.CTkButton(master=self, text="Exit", fg_color=accent1, text_color=primary, font=("Arial", 20), command=self.exit_callback)
+        self.exit_button.pack(pady=20, padx=20)
+        
+        self.cancel_button = ctk.CTkButton(master=self, text="Cancel", fg_color=accent1, text_color=primary, font=("Arial", 20), command=self.cancel_callback)
+        self.cancel_button.pack(pady=20, padx=20)
+        
+    def exit_callback(self):
+        root.destroy()
+        
+    def cancel_callback(self):
+        self.destroy()
 
 class root(tk.Tk):
     def __init__(self):
@@ -134,11 +154,18 @@ class root(tk.Tk):
         self.toplevel_window = None
         
     def exit_app_callback(self):
-        root.destroy()
-        # if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
-        #     self.toplevel_window = exit_dialogue_window(self)  # create window if its None or destroyed
-        # else:
-        #     self.toplevel_window.focus()
+        #root.destroy()
+        
+        with open('current-settings.json', 'r') as file:
+            settings_data = json.load(file)
+        
+        if settings_data["keep_launcher_open_on_app_launch"] == "False": #will cause error if value is changed from launcher while app is running
+            if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
+                self.toplevel_window = exit_dialogue_window(self)  # create window if its None or destroyed
+            else:
+                self.toplevel_window.focus()
+        else:
+            root.destroy()
 
 if __name__ == "__main__":
     
@@ -148,10 +175,10 @@ if __name__ == "__main__":
     match active_theme_type:
         case 'light':
             theme = themes_data["light"][f"{active_light_theme}"]
-            ctk.set_appearance_mode("light")  # Modes: "System" (standard), "Dark", "Light"
+            ctk.set_appearance_mode("light") # Modes: "System" (standard), "Dark", "Light"
         case 'dark':
             theme = themes_data["dark"][f"{active_dark_theme}"]
-            ctk.set_appearance_mode("dark")  # Modes: "System" (standard), "Dark", "Light"
+            ctk.set_appearance_mode("dark") # Modes: "System" (standard), "Dark", "Light"
 
     primary = theme['primary']
     secondary = theme['secondary']

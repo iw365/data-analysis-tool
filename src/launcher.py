@@ -4,6 +4,7 @@ from PIL import Image
 import subprocess
 import platform
 import os
+import json
 
 from settings import *
 from launcher_functions import *
@@ -24,8 +25,28 @@ class option_holder(ctk.CTkFrame):
         open_root_button.grid(row=1, column=0, padx=20, pady=20)
         
     def launch_app_call(self):
-        # print(launcher_permittivity_enabled.get())
-        launch_app_reg(root, 'main.py')
+        self.get_settings()
+        
+        #read data
+        with open('current-settings.json', 'r') as file:
+            settings_data = json.load(file)
+        
+        if settings_data["keep_launcher_open_on_app_launch"] == "False": #!BUH
+            root.destroy()
+            
+        launch_app_reg('main.py')
+        
+    def get_settings(self):
+        print('getting settings', launcher_permittivity_enabled.get())
+        
+        #read data
+        with open('current-settings.json', 'r') as file:
+            settings_data = json.load(file)
+        
+        settings_data["keep_launcher_open_on_app_launch"] = str(launcher_permittivity_enabled.get())
+        #save settings
+        with open("current-settings.json", "w") as file:
+            json.dump(settings_data, file)
         
     def open_root_folder(self):
         current_dir = os.getcwd()
@@ -54,7 +75,7 @@ class left_sub_frame_top(ctk.CTkFrame):
         image_label = ctk.CTkLabel(master = self, image=logo, text="", corner_radius=0)
         
         image_label.pack()
-        
+
 class left_sub_frame_bottom(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = width
@@ -95,9 +116,23 @@ class settings_menu_holder(ctk.CTkFrame):
         self.initialise_ui()
         
     def initialise_ui(self):
-        self.launcher_permittivity_enabled=ctk.IntVar(value=1)
-        self.launcher_permittivity_switch=ctk.CTkSwitch(master=self, text='Keep Launcher Open', variable=self.launcher_permittivity_enabled, onvalue=1, offvalue=0)
+        with open('current-settings.json', 'r') as file:
+            settings_data = json.load(file)
+        
+        global launcher_permittivity_enabled
+        launcher_permittivity_enabled=ctk.BooleanVar(value=(settings_data["keep_launcher_open_on_app_launch"]))
+        self.launcher_permittivity_switch=ctk.CTkSwitch(master=self, text='Keep Launcher Open', variable=launcher_permittivity_enabled, onvalue=True, offvalue=False, command=self.get_settings)
         self.launcher_permittivity_switch.grid(row=0, column=0, padx=50, pady=20)
+    
+    def get_settings(self):
+        #read data
+        with open('current-settings.json', 'r') as file:
+            settings_data = json.load(file)
+        
+        settings_data["keep_launcher_open_on_app_launch"] = str(launcher_permittivity_enabled.get())
+        #save settings
+        with open("current-settings.json", "w") as file:
+            json.dump(settings_data, file)
 
 class right_sub_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
