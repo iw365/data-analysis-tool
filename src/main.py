@@ -76,7 +76,7 @@ class left_frame(ctk.CTkFrame):
         upload_file_button = ctk.CTkButton(master=self,
                                             width = (self.width/5)*4,
                                             height = self.height / 5,
-                                            _color=(accent1, primary),
+                                            fg_color=(accent1, primary),
                                             text='upload file',
                                             command = self.upload_file)
         upload_file_button.pack(pady=20, padx=20)
