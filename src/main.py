@@ -3,6 +3,7 @@ import customtkinter as ctk
 import json
 
 from settings import active_light_theme, active_dark_theme, active_theme_type, width, height
+from launcher_functions import *
 
 class middle_sub_frame_top(ctk.CTkFrame):
     def __init__(self, parent, width, height):
@@ -64,7 +65,7 @@ class left_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = width/4
         self.height = height
-        super().__init__(parent, width=self.width, height=self.height, fg_color=secondary, corner_radius = 0)
+        super().__init__(parent, width=self.width, height=self.height, fg_color=primary, corner_radius = 0)
         self.pack_propagate(False)
         self.initialise_ui()
 
@@ -72,7 +73,12 @@ class left_frame(ctk.CTkFrame):
         self.main_tabview = main_tabview(parent = self, width = self.width, height = self.height)
         self.main_tabview.pack(pady=20, padx=20)
         
-        upload_file_button = ctk.CTkButton(master=self, width = (self.width/5)*4, height = self.height / 5, text='upload file', command = self.upload_file)
+        upload_file_button = ctk.CTkButton(master=self,
+                                            width = (self.width/5)*4,
+                                            height = self.height / 5,
+                                            _color=(accent1, primary),
+                                            text='upload file',
+                                            command = self.upload_file)
         upload_file_button.pack(pady=20, padx=20)
         
     def upload_file(self):
@@ -116,16 +122,23 @@ class exit_dialogue_window(ctk.CTkToplevel):
         self.focus_force()
         self.grab_set()
         
-        self.exit_label = ctk.CTkLabel(master=self, text="Are you sure you want to exit?", fg_color=primary, text_color=accent1, font=("Arial", 20))
+        self.exit_label = ctk.CTkLabel(master=self, text="Return to Launcher?", fg_color=primary, text_color=accent1, font=("Arial", 20))
         self.exit_label.pack(pady=20, padx=20)
         
-        self.exit_button = ctk.CTkButton(master=self, text="Exit", fg_color=accent1, text_color=primary, font=("Arial", 20), command=self.exit_callback)
-        self.exit_button.pack(pady=20, padx=20)
+        self.exit_yes_button = ctk.CTkButton(master=self, text="Yes", fg_color=accent1, text_color=primary, font=("Arial", 20), command=self.exit_yes_callback)
+        self.exit_yes_button.pack(pady=20, padx=20)
+        
+        self.exit_no_button = ctk.CTkButton(master=self, text="No", fg_color=accent1, text_color=primary, font=("Arial", 20), command=self.exit_no_callback)
+        self.exit_no_button.pack(pady=20, padx=20)
         
         self.cancel_button = ctk.CTkButton(master=self, text="Cancel", fg_color=accent1, text_color=primary, font=("Arial", 20), command=self.cancel_callback)
         self.cancel_button.pack(pady=20, padx=20)
         
-    def exit_callback(self):
+    def exit_yes_callback(self):
+        root.destroy()
+        launch_app_reg('launcher.py')
+        
+    def exit_no_callback(self):
         root.destroy()
         
     def cancel_callback(self):
