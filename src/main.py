@@ -1,9 +1,25 @@
 import tkinter as tk
+from tkinter import filedialog
 import customtkinter as ctk
 import json
 
 from settings import active_light_theme, active_dark_theme, active_theme_type, width, height
 from launcher_functions import *
+
+def hex_to_rgb(hex):
+    return tuple(int(hex.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
+
+rgb_to_hex = lambda rgb: '#{0:02x}{1:02x}{2:02x}'.format(rgb[0], rgb[1], rgb[2])
+
+def lighten_color(hex_color, factor=0.25):
+    rgb_color = hex_to_rgb(hex_color)
+    lighter_rgb = tuple(int((255 - val) * factor + val) for val in rgb_color)
+    return rgb_to_hex(lighter_rgb)
+
+def darken_color(hex_color, factor=0.25):
+    rgb_color = hex_to_rgb(hex_color)
+    darker_rgb = tuple(int(val * (1 - factor)) for val in rgb_color)
+    return rgb_to_hex(darker_rgb)
 
 class middle_sub_frame_top(ctk.CTkFrame):
     def __init__(self, parent, width, height):
@@ -40,11 +56,11 @@ class main_tabview(ctk.CTkTabview):
     def __init__(self, parent, width, height):
         self.width = (width/5)*4
         self.height = (height/4)*3
-        super().__init__(parent,
+        super().__init__(master=parent,
                         width=self.width,
                         height=self.height,
                         text_color=accent1,
-                        fg_color=(secondary, primary),
+                        fg_color=[secondary, primary],
                         border_width=3,
                         border_color=accent1,
                         segmented_button_fg_color=accent1,
@@ -72,17 +88,34 @@ class left_frame(ctk.CTkFrame):
     def initialise_ui(self):
         self.main_tabview = main_tabview(parent = self, width = self.width, height = self.height)
         self.main_tabview.pack(pady=20, padx=20)
+        print(ctk.get_appearance_mode())
         
         upload_file_button = ctk.CTkButton(master=self,
                                             width = (self.width/5)*4,
                                             height = self.height / 5,
                                             fg_color=(accent1, primary),
+                                            hover_color=(accent1_light, primary_dark),
+                                            border_width=3,
+                                            border_color=(accent1, spare),
+                                            corner_radius=10,
                                             text='upload file',
+                                            font=("Roboto", 40),
                                             command = self.upload_file)
         upload_file_button.pack(pady=20, padx=20)
         
     def upload_file(self):
-        pass
+        root.filename = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a File", filetypes=((("CSV files", "*.csv"), ("All files", "*.*"))))
+        print(root.filename)
+
+        if not root.filename:
+            print("No file selected.")
+        elif not os.path.isfile(root.filename):
+            print("File not found.")
+        elif not root.filename.endswith('.csv'):
+            print("File is not a CSV file.")
+        else:
+            pass
+            #run_tool(root.filename)
 
 class middle_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
@@ -105,10 +138,47 @@ class right_frame(ctk.CTkFrame):
         self.width = width/4
         self.height = height
         super().__init__(parent, width=self.width, height=self.height, fg_color=secondary, corner_radius = 0)
+        self.pack_propagate(False)
+        self.grid_propagate(False)
         self.initialise_ui()
 
     def initialise_ui(self):
-        pass
+        
+        self.terminal_header_frame = ctk.CTkFrame(master=self, width=self.width, height=40, border_width=3, border_color=(accent1, accent1), fg_color=(spare, primary), corner_radius=10)
+        self.terminal_header_frame.pack(padx=30, pady=(20, 0))
+        self.terminal_header_frame.pack_propagate(False)
+        self.terminal_header_label = ctk.CTkLabel(master=self.terminal_header_frame, text="Terminal", text_color=(accent1, '#FFFFFF'), font=("Arial", 20))
+        self.terminal_header_label.pack(padx=10, pady=10)
+        
+        self.terminal = ctk.CTkTextbox(master=self,
+                                    width=self.width,
+                                    height=self.height-120,
+                                    state="normal",
+                                    text_color=(accent1, '#FFFFFF'),
+                                    scrollbar_button_color=(accent1, spare),
+                                    fg_color=(spare, primary),
+                                    border_color=(accent1, accent1),
+                                    border_width=3,
+                                    corner_radius=10)
+        self.terminal.pack(padx=30, pady=(0,0), fill = "both", expand = False)
+        self.terminal.insert("0.0", "APP START\n\n----------\n\n")
+        
+        self.terminal_clear_button = ctk.CTkButton(master=self,
+                                    width = self.width,
+                                    height = 40,
+                                    fg_color=(accent1, primary),
+                                    hover_color=(accent1_light, primary_dark),
+                                    border_width=3,
+                                    border_color=(accent1, accent1),
+                                    corner_radius=10,
+                                    text='clear terminal',
+                                    font=("Arial", 15),
+                                    command = self.clear_terminal)
+        self.terminal_clear_button.pack(padx=30, pady=(0, 20))
+        
+    def clear_terminal(self):
+        self.terminal.delete("0.0", "end")
+        self.terminal.insert("0.0", "Terminal cleared\n\n----------\n\n")
 
 class exit_dialogue_window(ctk.CTkToplevel):
     def __init__(self, parent):
@@ -146,19 +216,21 @@ class exit_dialogue_window(ctk.CTkToplevel):
 
 class root(tk.Tk):
     def __init__(self):
+        self.width = width
+        self.height = height
         super().__init__()
         self.title("Data Analysis Tool")
-        self.geometry(f'{width}x{height}')
+        self.geometry(f'{self.width}x{self.height}')
         #self.iconbitmap('classes/empty.ico') #change icon
-        ctk.set_appearance_mode("Light")
+        #ctk.set_appearance_mode("Light")
 
         self.initialise_ui()
 
     def initialise_ui(self):
 
-        self.left_frame = left_frame(parent = self, width = width, height = height)
-        self.middle_frame = middle_frame(parent = self,  width = width, height = height)
-        self.right_frame = right_frame(parent = self, width = width, height = height)
+        self.left_frame = left_frame(parent = self, width = self.width, height = self.height)
+        self.middle_frame = middle_frame(parent = self,  width = self.width, height = self.height)
+        self.right_frame = right_frame(parent = self, width = self.width, height = self.height)
 
         self.left_frame.grid(row=0, column=0, padx=0, pady=0)
         self.middle_frame.grid(row=0, column=1, padx=0, pady=0)
@@ -191,6 +263,7 @@ if __name__ == "__main__":
             ctk.set_appearance_mode("light") # Modes: "System" (standard), "Dark", "Light"
         case 'dark':
             theme = themes_data["dark"][f"{active_dark_theme}"]
+            print('debug i hate this')
             ctk.set_appearance_mode("dark") # Modes: "System" (standard), "Dark", "Light"
 
     primary = theme['primary']
@@ -198,6 +271,15 @@ if __name__ == "__main__":
     accent1 = theme['accent1']
     accent2 = theme['accent2']
     spare = theme['spare']
+    
+    primary_light = lighten_color(primary)
+    accent1_light = lighten_color(accent1)
+    accent2_light = lighten_color(accent2)
+    print(primary, secondary, accent1, accent2, spare)
+
+    primary_dark = darken_color(primary)
+    accent1_dark = darken_color(accent1)
+    accent2_dark = darken_color(accent2)
     
     root = root()
     root.protocol("WM_DELETE_WINDOW", root.exit_app_callback)
