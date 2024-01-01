@@ -118,18 +118,46 @@ class settings_menu_holder(ctk.CTkFrame):
     def initialise_ui(self):
         with open('current-settings.json', 'r') as file:
             settings_data = json.load(file)
+            
+        #self.grid_rowconfigure(2, weight=1)
         
         global launcher_permittivity_enabled
         launcher_permittivity_enabled=ctk.BooleanVar(value=(settings_data["keep_launcher_open_on_app_launch"]))
         self.launcher_permittivity_switch=ctk.CTkSwitch(master=self, text='Keep Launcher Open', variable=launcher_permittivity_enabled, onvalue=True, offvalue=False, command=self.get_settings)
-        self.launcher_permittivity_switch.grid(row=0, column=0, padx=50, pady=20)
-    
-    def get_settings(self):
+        self.launcher_permittivity_switch.grid(row=0, column=0, padx=50, pady=(20, 0))
+        
+        global resolution
+        self._width = settings_data["window_width"]
+        self._height = settings_data["window_height"]
+        resolution = ctk.StringVar(value=f"{self._width}x{self._height}")
+        self.resolution_options = ctk.CTkOptionMenu(master=self, values=["1280x720", "1600x900", "1920x1080", "2560x1440", "3840x2160"], variable=resolution, command=self.get_settings)
+        self.resolution_options.grid(row=1, column=0, padx=50, pady=(20, 0))
+        
+        self.resolution_warning_label = ctk.CTkLabel(master=self, text="*All resolutions other than \n1600x900 are experimental", text_color="#AD0000")
+        if str(resolution.get()) != "1600x900":
+            self.resolution_warning_label.grid(row=2, column=0, padx=50, pady=(20, 0))
+        
+        global show_date
+        show_date = ctk.StringVar(value=(settings_data["show_date_in_terminal"]))
+        show_date_checkbox = ctk.CTkCheckBox(master=self, text="Show Date in Terminal", variable=show_date, onvalue="True", offvalue="False", command=self.get_settings)
+        show_date_checkbox.grid(row=3, column=0, padx=50, pady=(20, 0))
+        
+    def get_settings(self, *args):
         #read data
         with open('current-settings.json', 'r') as file:
             settings_data = json.load(file)
         
+        #show a warning if the resolution is not 1600x900
+        if str(resolution.get()) != "1600x900":
+            self.resolution_warning_label.grid(row=2, column=0, padx=50, pady=(20, 0))
+        else:
+            self.resolution_warning_label.grid_forget()
+        
         settings_data["keep_launcher_open_on_app_launch"] = str(launcher_permittivity_enabled.get())
+        settings_data["window_width"] = str(resolution.get().split("x")[0])
+        settings_data["window_height"] = str(resolution.get().split("x")[1])
+        settings_data["show_date_in_terminal"] = str(show_date.get())
+        
         #save settings
         with open("current-settings.json", "w") as file:
             json.dump(settings_data, file)

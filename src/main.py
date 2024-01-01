@@ -2,9 +2,21 @@ import tkinter as tk
 from tkinter import filedialog
 import customtkinter as ctk
 import json
+import datetime as dt
 
-from settings import active_light_theme, active_dark_theme, active_theme_type, width, height
+from settings import active_light_theme, active_dark_theme, active_theme_type
 from launcher_functions import *
+
+#open settings file
+with open('current-settings.json', 'r') as file:
+    settings_data = json.load(file)
+    
+#set width and height from settings file
+width = int(settings_data["window_width"])
+height = int(settings_data["window_height"])
+
+#close settings file
+file.close()
 
 def hex_to_rgb(hex):
     return tuple(int(hex.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
@@ -109,6 +121,7 @@ class left_frame(ctk.CTkFrame):
 
         if not root.filename:
             print("No file selected.")
+            root.terminal_callback("No file selected", "soft")
         elif not os.path.isfile(root.filename):
             print("File not found.")
         elif not root.filename.endswith('.csv'):
@@ -161,7 +174,7 @@ class right_frame(ctk.CTkFrame):
                                     border_width=3,
                                     corner_radius=10)
         self.terminal.pack(padx=30, pady=(0,0), fill = "both", expand = False)
-        self.terminal.insert("0.0", "APP START\n\n----------\n\n")
+        self.terminal.insert("end", f"> APP START\n\n----------\n\n")
         
         self.terminal_clear_button = ctk.CTkButton(master=self,
                                     width = self.width,
@@ -178,7 +191,8 @@ class right_frame(ctk.CTkFrame):
         
     def clear_terminal(self):
         self.terminal.delete("0.0", "end")
-        self.terminal.insert("0.0", "Terminal cleared\n\n----------\n\n")
+        root.terminal_callback("TERMINAL CLEARED", "hard")
+        #self.terminal.insert("0.0", "TERMINAL CLEARED\n\n----------\n\n")
 
 class exit_dialogue_window(ctk.CTkToplevel):
     def __init__(self, parent):
@@ -188,9 +202,9 @@ class exit_dialogue_window(ctk.CTkToplevel):
         
     def initialise_ui(self):
         self.title("Exit")
-        self.resizable(False, False)
-        self.focus_force()
-        self.grab_set()
+        self.resizable(False, False) # disable resizing
+        self.focus_force() # make window focused
+        self.grab_set() # make window modal
         
         self.exit_label = ctk.CTkLabel(master=self, text="Return to Launcher?", fg_color=primary, text_color=accent1, font=("Arial", 20))
         self.exit_label.pack(pady=20, padx=20)
@@ -251,6 +265,23 @@ class root(tk.Tk):
                 self.toplevel_window.focus()
         else:
             root.destroy()
+    
+    def terminal_callback(self, text, type):
+        
+        with open('current-settings.json', 'r') as file:
+            settings_data = json.load(file)
+            
+        if settings_data["show_date_in_terminal"] == "True":
+            date_if_enabled = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            formatted_date_if_enabled = f"[{date_if_enabled}]"
+        else:
+            formatted_date_if_enabled = ""
+            
+        match type:
+            case "soft":
+                self.right_frame.terminal.insert("end", f"{formatted_date_if_enabled} > {text}\n\n")
+            case "hard":
+                self.right_frame.terminal.insert("end", f"{formatted_date_if_enabled} > {text}\n\n----------\n\n")
 
 if __name__ == "__main__":
     
