@@ -90,11 +90,12 @@ class main_tabview(ctk.CTkTabview):
         self.label.grid(row=0, column=0, padx=20, pady=10)
 
 class left_frame(ctk.CTkFrame):
-    def __init__(self, parent, width, height):
+    def __init__(self, parent, root, width, height):
         self.width = width/4
         self.height = height
         super().__init__(parent, width=self.width, height=self.height, fg_color=primary, corner_radius = 0)
         self.pack_propagate(False)
+        self.root=root
         self.initialise_ui()
 
     def initialise_ui(self):
@@ -112,23 +113,8 @@ class left_frame(ctk.CTkFrame):
                                             corner_radius=10,
                                             text='upload file',
                                             font=("Roboto", 40),
-                                            command = self.upload_file)
+                                            command = self.root.upload_file)
         upload_file_button.pack(pady=20, padx=20)
-        
-    def upload_file(self):
-        root.filename = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a File", filetypes=((("CSV files", "*.csv"), ("All files", "*.*"))))
-        print(root.filename)
-
-        if not root.filename:
-            print("No file selected.")
-            root.terminal_callback("No file selected", "soft")
-        elif not os.path.isfile(root.filename):
-            print("File not found.")
-        elif not root.filename.endswith('.csv'):
-            print("File is not a CSV file.")
-        else:
-            pass
-            #run_tool(root.filename)
 
 class middle_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
@@ -242,7 +228,7 @@ class root(tk.Tk):
 
     def initialise_ui(self):
 
-        self.left_frame = left_frame(parent = self, width = self.width, height = self.height)
+        self.left_frame = left_frame(parent = self, root = self, width = self.width, height = self.height)
         self.middle_frame = middle_frame(parent = self,  width = self.width, height = self.height)
         self.right_frame = right_frame(parent = self, width = self.width, height = self.height)
 
@@ -251,6 +237,22 @@ class root(tk.Tk):
         self.right_frame.grid(row=0, column=2, padx=0, pady=0)
         
         self.toplevel_window = None
+    
+    def upload_file(self):
+        self.filename = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a File", filetypes=((("CSV files", "*.csv"), ("All files", "*.*"))))
+        print(self.filename)
+        root.terminal_callback(f"File Dialogue opened", "soft")
+        
+        if not self.filename:
+            print("No file selected.")
+            self.terminal_callback("No file selected", "soft")
+        elif not os.path.isfile(self.filename):
+            print("File not found.")
+        elif not self.filename.endswith('.csv'):
+            print("File is not a CSV file.")
+        else:
+            root.terminal_callback(f"FILE SELECTED: {self.filename}", "soft")
+            #run_tool(root.filename)
         
     def exit_app_callback(self):
         #root.destroy()
