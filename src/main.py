@@ -103,7 +103,7 @@ class left_frame(ctk.CTkFrame):
         self.main_tabview.pack(pady=20, padx=20)
         print(ctk.get_appearance_mode())
         
-        upload_file_button = ctk.CTkButton(master=self,
+        self.main_button = ctk.CTkButton(master=self,
                                             width = (self.width/5)*4,
                                             height = self.height / 5,
                                             fg_color=(accent1, primary),
@@ -113,8 +113,22 @@ class left_frame(ctk.CTkFrame):
                                             corner_radius=10,
                                             text='upload file',
                                             font=("Roboto", 40),
-                                            command = self.root.upload_file)
-        upload_file_button.pack(pady=20, padx=20)
+                                            command = self.root.main_button_callback)
+        self.main_button.pack(pady=20, padx=20)
+        
+        self.main_button.bind('<Return>', self.root.main_button_callback)
+        
+        self.close_file_button = ctk.CTkButton(master=self,
+                                            width = (self.width/5)*4,
+                                            height = self.height / 15,
+                                            fg_color=(accent1, primary),
+                                            hover_color=(accent1_light, primary_dark),
+                                            border_width=3,
+                                            border_color=(accent1, spare),
+                                            corner_radius=10,
+                                            text='close file',
+                                            font=("Roboto", 15),
+                                            command = self.root.close_file)
 
 class middle_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
@@ -160,7 +174,9 @@ class right_frame(ctk.CTkFrame):
                                     border_width=3,
                                     corner_radius=10)
         self.terminal.pack(padx=30, pady=(0,0), fill = "both", expand = False)
+        self.terminal.configure(state = "normal")
         self.terminal.insert("end", f"> APP START\n\n----------\n\n")
+        self.terminal.configure(state = "disabled")
         
         self.terminal_clear_button = ctk.CTkButton(master=self,
                                     width = self.width,
@@ -176,7 +192,9 @@ class right_frame(ctk.CTkFrame):
         self.terminal_clear_button.pack(padx=30, pady=(0, 20))
         
     def clear_terminal(self):
+        self.terminal.configure(state = "normal")
         self.terminal.delete("0.0", "end")
+        self.terminal.configure(state = "disabled")
         root.terminal_callback("TERMINAL CLEARED", "hard")
         #self.terminal.insert("0.0", "TERMINAL CLEARED\n\n----------\n\n")
 
@@ -218,6 +236,7 @@ class root(tk.Tk):
     def __init__(self):
         self.width = width
         self.height = height
+        self.file_active = False
         super().__init__()
         self.title("Data Analysis Tool")
         self.geometry(f'{self.width}x{self.height}')
@@ -238,21 +257,49 @@ class root(tk.Tk):
         
         self.toplevel_window = None
     
+    def main_button_callback(self):
+        if self.file_active == False:
+            self.upload_file()
+        elif self.file_active == True:
+            self.run_tool(self.filename)
+    
     def upload_file(self):
+        root.terminal_callback(f"File Dialogue opened", "soft")
         self.filename = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a File", filetypes=((("CSV files", "*.csv"), ("All files", "*.*"))))
         print(self.filename)
-        root.terminal_callback(f"File Dialogue opened", "soft")
         
         if not self.filename:
             print("No file selected.")
             self.terminal_callback("No file selected", "soft")
         elif not os.path.isfile(self.filename):
             print("File not found.")
+            self.terminal_callback("File not found", "soft")
         elif not self.filename.endswith('.csv'):
             print("File is not a CSV file.")
+            self.terminal_callback("File is not a CSV file", "soft")
         else:
-            root.terminal_callback(f"FILE SELECTED: {self.filename}", "soft")
+            root.terminal_callback(f"FILE SELECTED: {self.filename}", "hard")
+            self.file_active = True
+            self.refresh_ui()
             #run_tool(root.filename)
+            
+    def run_tool(self, filename):
+        print("guh")
+        print(filename)
+        
+    def close_file(self):
+        pass
+    
+    def refresh_ui(self): #! set file_active to its new value BEFORE running this function
+        
+        if self.file_active == True:
+            print("tool active")
+            self.left_frame.main_button.configure(text="run tool")
+            self.left_frame.close_file_button.pack(pady=20, padx=20)
+        elif self.file_active == False:
+            print("no tool active")
+            self.left_frame.main_button.configure(text="upload file")
+            
         
     def exit_app_callback(self):
         #root.destroy()
@@ -281,9 +328,13 @@ class root(tk.Tk):
             
         match type:
             case "soft":
+                self.right_frame.terminal.configure(state = "normal")
                 self.right_frame.terminal.insert("end", f"{formatted_date_if_enabled} > {text}\n\n")
+                self.right_frame.terminal.configure(state = "disabled")
             case "hard":
+                self.right_frame.terminal.configure(state = "normal")
                 self.right_frame.terminal.insert("end", f"{formatted_date_if_enabled} > {text}\n\n----------\n\n")
+                self.right_frame.terminal.configure(state = "disabled")
 
 if __name__ == "__main__":
     

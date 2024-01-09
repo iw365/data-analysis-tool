@@ -22,7 +22,7 @@ class option_holder(ctk.CTkFrame):
         app_launch_button.grid(row=0, column=0, padx=20, pady=20)
         
         open_root_button = ctk.CTkButton(master=self, width = self.width - 80, height = self.height / 5, text='open root folder', command = self.open_root_folder)
-        open_root_button.grid(row=1, column=0, padx=20, pady=20)
+        open_root_button.grid(row=1, column=0, padx=20, pady=(0,20))
         
     def launch_app_call(self):
         self.get_settings()
@@ -140,7 +140,7 @@ class settings_menu_holder(ctk.CTkFrame):
         global show_date
         show_date = ctk.StringVar(value=(settings_data["show_date_in_terminal"]))
         show_date_checkbox = ctk.CTkCheckBox(master=self, text="Show Date in Terminal", variable=show_date, onvalue="True", offvalue="False", command=self.get_settings)
-        show_date_checkbox.grid(row=3, column=0, padx=50, pady=(20, 0))
+        show_date_checkbox.grid(row=3, column=0, padx=50, pady=(20, 20))
         
     def get_settings(self, *args):
         #read data
