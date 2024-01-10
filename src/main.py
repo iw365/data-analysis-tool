@@ -130,21 +130,21 @@ class left_frame(ctk.CTkFrame):
                                             font=("Roboto", 15),
                                             command = self.root.close_file)
 
-class middle_frame(ctk.CTkFrame):
-    def __init__(self, parent, width, height):
-        self.width = width/2
-        self.height = height
-        super().__init__(parent, width=self.width, height=self.height, fg_color='#00FF00', corner_radius = 0)
-        self.initialise_ui()
+# class middle_frame(ctk.CTkFrame):
+#     def __init__(self, parent, width, height):
+#         self.width = width/2
+#         self.height = height
+#         super().__init__(parent, width=self.width, height=self.height, fg_color='#00FF00', corner_radius = 0)
+#         self.initialise_ui()
 
-    def initialise_ui(self):
-        self.middle_sub_frame_top = middle_sub_frame_top(parent = self, width = self.width, height = self.height)
-        self.middle_sub_frame_middle = middle_sub_frame_middle(parent = self, width = self.width, height = self.height)
-        self.middle_sub_frame_bottom = middle_sub_frame_bottom(parent = self, width = self.width, height = self.height)
+#     def initialise_ui(self):
+#         self.middle_sub_frame_top = middle_sub_frame_top(parent = self, width = self.width, height = self.height)
+#         self.middle_sub_frame_middle = middle_sub_frame_middle(parent = self, width = self.width, height = self.height)
+#         self.middle_sub_frame_bottom = middle_sub_frame_bottom(parent = self, width = self.width, height = self.height)
         
-        self.middle_sub_frame_top.grid(row=0, column=0, padx=0, pady=0)
-        self.middle_sub_frame_middle.grid(row=1, column=0, padx=0, pady=0)
-        self.middle_sub_frame_bottom.grid(row=2, column=0, padx=0, pady=0)
+#         self.middle_sub_frame_top.grid(row=0, column=0, padx=0, pady=0)
+#         self.middle_sub_frame_middle.grid(row=1, column=0, padx=0, pady=0)
+#         self.middle_sub_frame_bottom.grid(row=2, column=0, padx=0, pady=0)
 
 class right_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
@@ -248,11 +248,11 @@ class root(tk.Tk):
     def initialise_ui(self):
 
         self.left_frame = left_frame(parent = self, root = self, width = self.width, height = self.height)
-        self.middle_frame = middle_frame(parent = self,  width = self.width, height = self.height)
+        #self.middle_frame = middle_frame(parent = self,  width = self.width, height = self.height)
         self.right_frame = right_frame(parent = self, width = self.width, height = self.height)
 
         self.left_frame.grid(row=0, column=0, padx=0, pady=0)
-        self.middle_frame.grid(row=0, column=1, padx=0, pady=0)
+        #self.middle_frame.grid(row=0, column=1, padx=0, pady=0)
         self.right_frame.grid(row=0, column=2, padx=0, pady=0)
         
         self.toplevel_window = None
