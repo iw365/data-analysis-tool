@@ -1,0 +1,50 @@
+SCUFFED SETUP INSTRUCTIONS
+
+ON LINUX----------------------------------------
+
+maybe run this? if it doesnt work at least:
+sudo apt install build-essential zliblg-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
+
+allow python to install tkinter
+sudo apt install tk-dev
+
+download python 3.12.0 source code from https://www.python.org/downloads/release/python-3120/
++download the tarball (XZ compressed source tarball)
+
+extract it
+tar -xJf Python-3.12.0.tar.xz
+
+cd into the extracted folder
+cd Python-3.12.0
+
+configure it
+./configure --with-ssl --enable-optimizations
+
+make it
+make
+
+install it
+sudo make install
+
+move into source directory
+cd src
+
+create venv
+python3 -m venv .venv
+
+activate venv
+source .venv/bin/activate
+
+install requirements
+pip install -r requirements.txt
+
+DONE
+
+ON WINDOWS----------------------------------------
+
+download python 3.12.0 source code from https://www.python.org/downloads/release/python-3120/
++download the Windows x86-64 executable installer
+
+run windows setup
+
+TODO: finish this
