@@ -47,4 +47,11 @@ download python 3.12.0 source code from https://www.python.org/downloads/release
 
 run windows setup
 
+cd src
+
+venv if necessary:
+
+python -m venv .venv
+.venv\Scripts\activate or .venv/Scripts/activate (depending on shell(left is cmd, right is bash))
+
 TODO: finish this
