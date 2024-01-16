@@ -125,6 +125,22 @@ class top_left_frame(ctk.CTkFrame):
         self.main_tabview = main_tabview(parent = self, width = self.width, height = self.height)
         self.main_tabview.pack(pady=(10, 10), padx=(10, 10))
 
+class bottom_left_frame(ctk.CTkFrame):
+    def __init__(self, parent, width, height):
+        self.width = width
+        self.height = (height/4)
+        super().__init__(parent,
+                        width=self.width,
+                        height=self.height,
+                        fg_color="#FF0000",
+                        corner_radius = 0)
+        self.pack_propagate(False)
+        self.grid_propagate(False)
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+        pass
+
 class left_frame(ctk.CTkFrame):
     def __init__(self, parent, root, width, height):
         self.width = width/4
@@ -138,6 +154,9 @@ class left_frame(ctk.CTkFrame):
         
         self.top_left_frame = top_left_frame(parent = self, width = self.width, height = self.height)
         self.top_left_frame.pack(padx=0, pady=(0, 0))
+        
+        self.bottom_left_frame = bottom_left_frame(parent = self, width = self.width, height = self.height)
+        self.bottom_left_frame.pack(padx=0, pady=(0, 0))
         
         self.main_button = ctk.CTkButton(master=self,
                                             width = (self.width/5)*4,
@@ -317,6 +336,10 @@ class terminal_frame(ctk.CTkFrame):
                                     font=("Arial", 14),
                                     command = self.clear_terminal)
         self.terminal_clear_button.pack(padx=(0, 0), pady=(0, 0))
+        
+        self.terminal_clear_tooltip = CTkToolTip(self.terminal_clear_button,
+                                                corner_radius=10,
+                                                message="Clear Terminal") #!NEED TO ADD OTHER TOOLTIPS
         
         # Add third frame with tertiary color
         self.terminal_header_frame_3 = ctk.CTkFrame(master=self.terminal_header_frame,
