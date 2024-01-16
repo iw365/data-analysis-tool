@@ -1,5 +1,7 @@
 import tkinter as tk
 import customtkinter as ctk
+from CTkToolTip import *
+
 from PIL import Image
 import subprocess
 import platform
@@ -130,7 +132,13 @@ class settings_menu_holder(ctk.CTkFrame):
         self._width = settings_data["window_width"]
         self._height = settings_data["window_height"]
         resolution = ctk.StringVar(value=f"{self._width}x{self._height}")
-        self.resolution_options = ctk.CTkOptionMenu(master=self, values=["1280x720", "1600x900", "1920x1080", "2560x1440", "3840x2160"], variable=resolution, command=self.get_settings)
+        
+        print(self.winfo_screenwidth(), self.winfo_screenheight())
+        self.screen_width = self.winfo_screenwidth()
+        self.screen_height = self.winfo_screenheight()
+        self.detected_resolution = f"Detected Display: {self.screen_width}x{self.screen_height}"
+        
+        self.resolution_options = ctk.CTkOptionMenu(master=self, values=[self.detected_resolution, "1280x720", "1600x900", "1920x1080", "2560x1440", "3840x2160"], variable=resolution, command=self.get_settings)
         self.resolution_options.grid(row=1, column=0, padx=50, pady=(20, 0))
         
         self.resolution_warning_label = ctk.CTkLabel(master=self, text="*All resolutions other than \n1600x900 are experimental", text_color="#AD0000")
@@ -152,6 +160,9 @@ class settings_menu_holder(ctk.CTkFrame):
             self.resolution_warning_label.grid(row=2, column=0, padx=50, pady=(20, 0))
         else:
             self.resolution_warning_label.grid_forget()
+        
+        if str(resolution.get()) == self.detected_resolution:
+            resolution.set(f"{self.screen_width}x{self.screen_height}")
         
         settings_data["keep_launcher_open_on_app_launch"] = str(launcher_permittivity_enabled.get())
         settings_data["window_width"] = str(resolution.get().split("x")[0])

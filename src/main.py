@@ -3,6 +3,7 @@ from tkinter import filedialog
 
 import customtkinter as ctk
 from CTkMenuBar import *
+from CTkToolTip import *
 
 import json
 import datetime as dt
@@ -300,7 +301,8 @@ class root(tk.Tk):
         self.file_active = False
         super().__init__()
         self.title("Data Analysis Tool")
-        self.geometry(f'{self.width}x{self.height}')
+        
+        self.geometry(f'{self.width}x{self.height}+50+50')
         #self.iconbitmap('classes/empty.ico') #change icon
         #ctk.set_appearance_mode("Light")
 
