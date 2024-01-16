@@ -169,7 +169,7 @@ class bottom_options_panel(ctk.CTkFrame):
                         height=(self.height),
                         border_width=0,
                         border_color=(accent1, accent1),
-                        fg_color=(spare, secondary),
+                        fg_color=(secondary),
                         corner_radius=10)
         self.grid_propagate(False)
         self.pack_propagate(False)
@@ -206,7 +206,7 @@ class terminal_frame(ctk.CTkFrame):
                                                 width=(self.width),
                                                 height=(self.height/6)*1,
                                                 border_width=0,
-                                                fg_color=secondary,
+                                                fg_color=primary,
                                                 corner_radius=10)
         
         self.terminal_header_frame.pack_propagate(False)
@@ -215,53 +215,76 @@ class terminal_frame(ctk.CTkFrame):
         
         # Add first frame with primary color
         self.terminal_header_frame_1 = ctk.CTkFrame(master=self.terminal_header_frame,
-                                                    width=((self.width/8)*6)-10,
+                                                    width=((self.width/8)*6)-20,
                                                     height=(self.height/6)*1,
                                                     fg_color="#0000FF",
                                                     corner_radius=10,
                                                     border_width=0)
-        self.terminal_header_frame_1.grid(row=0, column=0, padx=0, pady=0)
+        self.terminal_header_frame_1.grid(row=0, column=0, padx=(0, 5), pady=0)
+        
+        self.terminal_header_title_frame = ctk.CTkFrame(master=self.terminal_header_frame_1,
+                                                        width=((self.width/8)*6)-20,
+                                                        height=(self.height/6)*1,
+                                                        bg_color=primary,
+                                                        #fg_color=secondary,
+                                                        fg_color=secondary,
+                                                        corner_radius=10,
+                                                        border_width=0)
+
+        self.terminal_header_title_frame.grid_propagate(False)
+        self.terminal_header_title_frame.grid(row=0, column=0, padx=0, pady=0)
+        
+        self.terminal_header_title_label = ctk.CTkLabel(master=self.terminal_header_title_frame,
+                                                text="Terminal",
+                                                text_color=(accent1, '#FFFFFF'),
+                                                font=("Arial", 20))
+        self.terminal_header_title_label.grid(row=0, column=0, padx=20, pady=5)
         
         # Add second frame with secondary color
         self.terminal_header_frame_2 = ctk.CTkFrame(master=self.terminal_header_frame,
                                                     width=(self.width/8)*1,
                                                     height=(self.height/6)*1,
-                                                    fg_color="#ff0000",
+                                                    fg_color=primary,
                                                     corner_radius=10,
                                                     border_width=0)
-        self.terminal_header_frame_2.grid(row=0, column=1, padx=0, pady=0)
+        self.terminal_header_frame_2.grid(row=0, column=1, padx=(0,5), pady=0)
+        
+        self.terminal_clear_button = ctk.CTkButton(master=self.terminal_header_frame_2,
+                                    width = (self.width/8)*1,
+                                    height = (self.height/6)*1,
+                                    fg_color=secondary,
+                                    hover_color=secondary_dark,
+                                    border_width=0,
+                                    border_color=(accent1, accent1),
+                                    corner_radius=10,
+                                    text='[x]',
+                                    text_color=accent1,
+                                    font=("Arial", 14),
+                                    command = self.clear_terminal)
+        self.terminal_clear_button.pack(padx=(0, 0), pady=(0, 0))
         
         # Add third frame with tertiary color
         self.terminal_header_frame_3 = ctk.CTkFrame(master=self.terminal_header_frame,
                                                     width=(self.width/8)*1,
                                                     height=(self.height/6)*1,
-                                                    fg_color="#00ff00",
+                                                    fg_color=primary,
                                                     corner_radius=10,
                                                     border_width=0)
         self.terminal_header_frame_3.grid(row=0, column=2, padx=0, pady=0)
         
-        
-        
-        # self.terminal_header_title_frame = ctk.CTkFrame(master=self.terminal_header_frame,
-        #                                                 width=(self.width),
-        #                                                 height=(self.height/6)*1,
-        #                                                 bg_color=primary,
-        #                                                 #fg_color=secondary,
-        #                                                 fg_color='#0000FF',
-        #                                                 corner_radius=10,
-        #                                                 border_width=0)
-        
-        # self.terminal_header_title_frame.pack_propagate(False)
-        # self.terminal_header_title_frame.grid_propagate(False)
-        # self.terminal_header_title_frame.grid(row=0, column=0, padx=0, pady=0)
-        
-        # self.terminal_header_title_label = ctk.CTkLabel(master=self.terminal_header_title_frame,
-        #                                         text="Terminal",
-        #                                         text_color=(accent1, '#FFFFFF'),
-        #                                         font=("Arial", 20))
-        # self.terminal_header_title_label.pack_propagate(False)
-        # self.terminal_header_title_label.grid_propagate(False)
-        # self.terminal_header_title_label.grid(row=0, column=0, padx=10, pady=10)
+        self.unused_button = ctk.CTkButton(master=self.terminal_header_frame_3,
+                                            width = (self.width/8)*1,
+                                            height = (self.height/6)*1,
+                                            fg_color=secondary,
+                                            hover_color=secondary_dark,
+                                            border_width=0,
+                                            border_color=(accent1, accent1),
+                                            corner_radius=10,
+                                            text='[-]',
+                                            text_color=accent1,
+                                            font=("Arial", 14),
+                                            command = self.debug_callback)
+        self.unused_button.pack(padx=(0, 0), pady=(0, 0))
         
         self.terminal = ctk.CTkTextbox(master=self,
                                     width=(self.width),
@@ -280,25 +303,16 @@ class terminal_frame(ctk.CTkFrame):
         self.terminal.insert("end", f"> APP START\n\n----------\n\n")
         self.terminal.configure(state = "disabled")
         
-        # self.terminal_clear_button = ctk.CTkButton(master=self,
-        #                             width = (self.width),
-        #                             height = (self.height/6)*1,
-        #                             fg_color=secondary,
-        #                             hover_color=secondary_dark,
-        #                             border_width=0,
-        #                             border_color=(accent1, accent1),
-        #                             corner_radius=10,
-        #                             text='clear terminal',
-        #                             font=("Arial", 15),
-        #                             command = self.clear_terminal)
-        # self.terminal_clear_button.pack(padx=(10, 10), pady=(0, 10))
-        
     def clear_terminal(self):
         self.terminal.configure(state = "normal")
         self.terminal.delete("0.0", "end")
         self.terminal.configure(state = "disabled")
         root.terminal_callback("TERMINAL CLEARED", "hard")
         #self.terminal.insert("0.0", "TERMINAL CLEARED\n\n----------\n\n")
+    
+    def debug_callback(self):
+        root.terminal_callback("DEBUG", "soft")
+        print("debug")
 
 
 class bottom_right_frame(ctk.CTkFrame):
