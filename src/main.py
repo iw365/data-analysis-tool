@@ -1,9 +1,17 @@
+import os
+import sys
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.join(script_dir, "root")
+sys.path.append(root_dir)
+
 import tkinter as tk
 from tkinter import filedialog
 
 import customtkinter as ctk
 from CTkMenuBar import *
 from CTkToolTip import *
+from modules.CTkXYFrame import ctk_xyframe
 
 import json
 import datetime as dt
@@ -70,16 +78,19 @@ def darken_color(hex_color, factor=0.25):
 
 class main_tabview(ctk.CTkTabview):
     def __init__(self, parent, width, height):
-        self.width = (width/5)*4
-        self.height = (height/4)*3
+        # self.width = (width/5)*4
+        # self.height = (height/4)*3
+        self.width = width
+        self.height = height
         super().__init__(master=parent,
                         width=self.width,
                         height=self.height,
                         text_color=accent1,
-                        fg_color=[secondary, primary],
-                        border_width=3,
+                        fg_color=secondary,
+                        corner_radius=10,
+                        border_width=0,
                         border_color=accent1,
-                        segmented_button_fg_color=accent1,
+                        segmented_button_fg_color=primary,
                         segmented_button_selected_color=accent2,
                         segmented_button_unselected_color=secondary,
                         segmented_button_selected_hover_color=accent2,
@@ -88,10 +99,31 @@ class main_tabview(ctk.CTkTabview):
         # create tabs
         self.add("tab 1")
         self.add("tab 2")
+        self.add("tab 3")
+        self.add("tab 4")
 
         # add widgets on tabs
         self.label = ctk.CTkLabel(master=self.tab("tab 1"))
         self.label.grid(row=0, column=0, padx=20, pady=10)
+
+class top_left_frame(ctk.CTkFrame):
+    def __init__(self, parent, width, height):
+        self.width = width
+        self.height = (height/4)*3
+        super().__init__(parent,
+                        width=self.width,
+                        height=self.height,
+                        #fg_color=primary,
+                        fg_color=primary,
+                        corner_radius = 0)
+        self.pack_propagate(False)
+        self.grid_propagate(False)
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+        
+        self.main_tabview = main_tabview(parent = self, width = self.width, height = self.height)
+        self.main_tabview.pack(pady=(10, 10), padx=(10, 10))
 
 class left_frame(ctk.CTkFrame):
     def __init__(self, parent, root, width, height):
@@ -103,8 +135,9 @@ class left_frame(ctk.CTkFrame):
         self.initialise_ui()
 
     def initialise_ui(self):
-        self.main_tabview = main_tabview(parent = self, width = self.width, height = self.height)
-        self.main_tabview.pack(pady=(20, 0), padx=20)
+        
+        self.top_left_frame = top_left_frame(parent = self, width = self.width, height = self.height)
+        self.top_left_frame.pack(padx=0, pady=(0, 0))
         
         self.main_button = ctk.CTkButton(master=self,
                                             width = (self.width/5)*4,
@@ -149,16 +182,39 @@ class left_frame(ctk.CTkFrame):
 #         self.middle_sub_frame_middle.grid(row=1, column=0, padx=0, pady=0)
 #         self.middle_sub_frame_bottom.grid(row=2, column=0, padx=0, pady=0)
 
+class y_frame(ctk.CTkScrollableFrame):
+    def __init__(self, parent, width, height):
+        self.width = width
+        self.height = height
+        super().__init__(parent,
+                        width=self.width,
+                        height=self.height,
+                        fg_color=secondary,
+                        corner_radius = 10,
+                        scrollbar_button_color=accent1,
+                        scrollbar_button_hover_color=accent1_dark,)
+        
 class top_right_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = width
         self.height = (height/4)*3
-        super().__init__(parent, width=self.width, height=self.height, fg_color='#FF0000', corner_radius = 0)
+        super().__init__(parent,
+                        width=self.width,
+                        height=self.height,
+                        fg_color=primary,
+                        #fg_color="#FF0000",
+                        corner_radius = 0)
+        self.pack_propagate(False)
         self.grid_propagate(False)
         self.initialise_ui()
         
     def initialise_ui(self):
-        pass
+        self.y_frame = y_frame(parent=self, width=self.width, height=self.height)
+        self.y_frame.pack(padx=10, pady=10)
+        
+        # EXPERIMENTAL
+        # self.xy_frame = ctk_xyframe.CTkXYFrame(master=self, width=self.width, height=self.height, corner_radius=10)
+        # self.xy_frame.pack(padx=10, pady=10)
 
 class bottom_options_panel(ctk.CTkFrame):
     def __init__(self, parent, width, height):
@@ -226,7 +282,6 @@ class terminal_frame(ctk.CTkFrame):
                                                         width=((self.width/8)*6)-20,
                                                         height=(self.height/6)*1,
                                                         bg_color=primary,
-                                                        #fg_color=secondary,
                                                         fg_color=secondary,
                                                         corner_radius=10,
                                                         border_width=0)
@@ -292,7 +347,8 @@ class terminal_frame(ctk.CTkFrame):
                                     state="normal",
                                     font=("Consolas", 12),
                                     text_color=(accent1, '#FFFFFF'),
-                                    scrollbar_button_color=(accent1, spare),
+                                    scrollbar_button_color=accent1,
+                                    scrollbar_button_hover_color=accent1_dark,
                                     fg_color=secondary,
                                     border_color=(accent1, accent1),
                                     border_width=0,
@@ -336,7 +392,7 @@ class right_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = (width/4)*3
         self.height = height
-        super().__init__(parent, width=self.width, height=self.height, fg_color=secondary, corner_radius = 0)
+        super().__init__(parent, width=self.width, height=self.height, fg_color=primary, corner_radius = 0)
         self.pack_propagate(False)
         self.grid_propagate(False)
         self.initialise_ui()
