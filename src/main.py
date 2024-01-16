@@ -160,64 +160,138 @@ class top_right_frame(ctk.CTkFrame):
     def initialise_ui(self):
         pass
 
-class bottom_options_frame(ctk.CTkFrame):
+class bottom_options_panel(ctk.CTkFrame):
     def __init__(self, parent, width, height):
-        self.width = ((width)/3)*2
+        self.width = width
         self.height = height
-        super().__init__(parent, width=self.width, height=self.height, fg_color='#00FF00', corner_radius = 0)
+        super().__init__(parent, 
+                        width=(self.width),
+                        height=(self.height),
+                        border_width=0,
+                        border_color=(accent1, accent1),
+                        fg_color=(spare, secondary),
+                        corner_radius=10)
         self.grid_propagate(False)
+        self.pack_propagate(False)
         self.initialise_ui()
         
     def initialise_ui(self):
         pass
-    
+
+class bottom_options_frame(ctk.CTkFrame):
+    def __init__(self, parent, width, height):
+        self.width = ((width)/3)*2
+        self.height = height
+        super().__init__(parent, width=self.width, height=self.height, fg_color=primary, corner_radius = 0)
+        self.grid_propagate(False)
+        self.pack_propagate(False)
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+        self.bottom_options_panel = bottom_options_panel(parent = self, width = self.width, height = self.height)
+        self.bottom_options_panel.pack(padx=(10, 10), pady=(10, 10))
+        
 class terminal_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = (width)/3
         self.height = height
-        super().__init__(parent, width=self.width, height=self.height, fg_color='#0000FF', corner_radius = 0)
+        super().__init__(parent, width=self.width, height=self.height, fg_color=primary, corner_radius = 0)
         self.grid_propagate(False)
         self.pack_propagate(False)
         self.initialise_ui()
         
     def initialise_ui(self):
         
-        self.terminal_header_frame = ctk.CTkFrame(master=self, width=(self.width), height=(self.height/6)*1, border_width=3, border_color=(accent1, accent1), fg_color=(spare, primary), corner_radius=10)
-        self.terminal_header_frame.pack(padx=(10, 10), pady=(10, 0))
-        self.terminal_header_frame.pack_propagate(False)
-        self.terminal_header_label = ctk.CTkLabel(master=self.terminal_header_frame, text="Terminal", text_color=(accent1, '#FFFFFF'), font=("Arial", 20))
-        self.terminal_header_label.pack(padx=10, pady=10)
+        self.terminal_header_frame = ctk.CTkFrame(master=self,
+                                                width=(self.width),
+                                                height=(self.height/6)*1,
+                                                border_width=0,
+                                                fg_color=secondary,
+                                                corner_radius=10)
         
-        print(self.height)
-        print((self.height/6)*1)
+        self.terminal_header_frame.pack_propagate(False)
+        self.terminal_header_frame.grid_propagate(False)
+        self.terminal_header_frame.pack(padx=(0, 10), pady=(10, 5))
+        
+        # Add first frame with primary color
+        self.terminal_header_frame_1 = ctk.CTkFrame(master=self.terminal_header_frame,
+                                                    width=((self.width/8)*6)-10,
+                                                    height=(self.height/6)*1,
+                                                    fg_color="#0000FF",
+                                                    corner_radius=10,
+                                                    border_width=0)
+        self.terminal_header_frame_1.grid(row=0, column=0, padx=0, pady=0)
+        
+        # Add second frame with secondary color
+        self.terminal_header_frame_2 = ctk.CTkFrame(master=self.terminal_header_frame,
+                                                    width=(self.width/8)*1,
+                                                    height=(self.height/6)*1,
+                                                    fg_color="#ff0000",
+                                                    corner_radius=10,
+                                                    border_width=0)
+        self.terminal_header_frame_2.grid(row=0, column=1, padx=0, pady=0)
+        
+        # Add third frame with tertiary color
+        self.terminal_header_frame_3 = ctk.CTkFrame(master=self.terminal_header_frame,
+                                                    width=(self.width/8)*1,
+                                                    height=(self.height/6)*1,
+                                                    fg_color="#00ff00",
+                                                    corner_radius=10,
+                                                    border_width=0)
+        self.terminal_header_frame_3.grid(row=0, column=2, padx=0, pady=0)
+        
+        
+        
+        # self.terminal_header_title_frame = ctk.CTkFrame(master=self.terminal_header_frame,
+        #                                                 width=(self.width),
+        #                                                 height=(self.height/6)*1,
+        #                                                 bg_color=primary,
+        #                                                 #fg_color=secondary,
+        #                                                 fg_color='#0000FF',
+        #                                                 corner_radius=10,
+        #                                                 border_width=0)
+        
+        # self.terminal_header_title_frame.pack_propagate(False)
+        # self.terminal_header_title_frame.grid_propagate(False)
+        # self.terminal_header_title_frame.grid(row=0, column=0, padx=0, pady=0)
+        
+        # self.terminal_header_title_label = ctk.CTkLabel(master=self.terminal_header_title_frame,
+        #                                         text="Terminal",
+        #                                         text_color=(accent1, '#FFFFFF'),
+        #                                         font=("Arial", 20))
+        # self.terminal_header_title_label.pack_propagate(False)
+        # self.terminal_header_title_label.grid_propagate(False)
+        # self.terminal_header_title_label.grid(row=0, column=0, padx=10, pady=10)
+        
         self.terminal = ctk.CTkTextbox(master=self,
                                     width=(self.width),
-                                    height=((self.height/6)*4)-20,
+                                    height=((self.height/6)*5)-20,
                                     state="normal",
+                                    font=("Consolas", 12),
                                     text_color=(accent1, '#FFFFFF'),
                                     scrollbar_button_color=(accent1, spare),
-                                    fg_color=(spare, primary),
+                                    fg_color=secondary,
                                     border_color=(accent1, accent1),
-                                    border_width=3,
+                                    border_width=0,
                                     corner_radius=10)
         # self.terminal.pack(padx=30, pady=(0,0), fill = "both", expand = False)
-        self.terminal.pack(padx=(10, 10), pady=(0,0), expand = False)
+        self.terminal.pack(padx=(0, 10), pady=(0,10), expand = False)
         self.terminal.configure(state = "normal")
         self.terminal.insert("end", f"> APP START\n\n----------\n\n")
         self.terminal.configure(state = "disabled")
         
-        self.terminal_clear_button = ctk.CTkButton(master=self,
-                                    width = (self.width),
-                                    height = (self.height/6)*1,
-                                    fg_color=(accent1, primary),
-                                    hover_color=(accent1_light, primary_dark),
-                                    border_width=3,
-                                    border_color=(accent1, accent1),
-                                    corner_radius=10,
-                                    text='clear terminal',
-                                    font=("Arial", 15),
-                                    command = self.clear_terminal)
-        self.terminal_clear_button.pack(padx=(10, 10), pady=(0, 10))
+        # self.terminal_clear_button = ctk.CTkButton(master=self,
+        #                             width = (self.width),
+        #                             height = (self.height/6)*1,
+        #                             fg_color=secondary,
+        #                             hover_color=secondary_dark,
+        #                             border_width=0,
+        #                             border_color=(accent1, accent1),
+        #                             corner_radius=10,
+        #                             text='clear terminal',
+        #                             font=("Arial", 15),
+        #                             command = self.clear_terminal)
+        # self.terminal_clear_button.pack(padx=(10, 10), pady=(0, 10))
         
     def clear_terminal(self):
         self.terminal.configure(state = "normal")
@@ -231,7 +305,7 @@ class bottom_right_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = width
         self.height = (height/4)
-        super().__init__(parent, width=self.width, height=self.height, fg_color='#FF00FF', corner_radius = 0)
+        super().__init__(parent, width=self.width, height=self.height, fg_color=(primary), corner_radius = 0)
         self.grid_propagate(False)
         self.pack_propagate(False)
         self.initialise_ui()
@@ -427,11 +501,13 @@ if __name__ == "__main__":
     spare = theme['spare']
     
     primary_light = lighten_color(primary)
+    secondary_light = lighten_color(secondary)
     accent1_light = lighten_color(accent1)
     accent2_light = lighten_color(accent2)
     print(primary, secondary, accent1, accent2, spare)
 
     primary_dark = darken_color(primary)
+    secondary_dark = darken_color(secondary)
     accent1_dark = darken_color(accent1)
     accent2_dark = darken_color(accent2)
     

@@ -1,5 +1,5 @@
 active_theme_type = 'dark'
-active_light_theme = 'example-light-theme3'
+active_light_theme = 'example-light-theme'
 active_dark_theme = 'example-dark-theme'
 
 # width = 1920
