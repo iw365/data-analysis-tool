@@ -132,34 +132,7 @@ class main_tabview(ctk.CTkTabview):
 
         # add widgets on tabs
         self.label = ctk.CTkLabel(master=self.tab("tab 1"))
-        self.label.pack(padx=20, pady=10)
-        
-        self.main_button = ctk.CTkButton(master=self.tab("tab 1"),
-                                            width = self.width,
-                                            height = self.height / 4,
-                                            fg_color=secondary,
-                                            hover_color=secondary_dark,
-                                            border_width=0,
-                                            border_color=(accent1, spare),
-                                            corner_radius=10,
-                                            text='upload file',
-                                            font=("Roboto", 40),
-                                            command = self.root.main_button_callback)
-        self.main_button.pack(pady=(0, 10), padx=10)
-        
-        #self.main_button.bind('<Return>', self.root.main_button_callback)
-        
-        self.close_file_button = ctk.CTkButton(master=self.tab("tab 1"),
-                                            width = (self.width/5)*4,
-                                            height = self.height / 15,
-                                            fg_color=(accent1, primary),
-                                            hover_color=(accent1_light, primary_dark),
-                                            border_width=3,
-                                            border_color=(accent1, spare),
-                                            corner_radius=10,
-                                            text='close file',
-                                            font=("Roboto", 15),
-                                            command = self.root.close_file) #need to add later
+        self.label.pack(padx=10, pady=10)
 
 # CURRENTLY UNUSED
 # --------------------------------------------------------------- #
@@ -287,7 +260,7 @@ class top_right_frame(ctk.CTkFrame):
         # self.xy_frame.pack(padx=10, pady=10)
 
 class bottom_options_panel(ctk.CTkFrame):
-    def __init__(self, parent, width, height):
+    def __init__(self, parent, root, width, height):
         self.width = width
         self.height = height
         super().__init__(parent, 
@@ -299,22 +272,50 @@ class bottom_options_panel(ctk.CTkFrame):
                         corner_radius=10)
         self.grid_propagate(False)
         self.pack_propagate(False)
+        self.root=root
         self.initialise_ui()
         
     def initialise_ui(self):
-        pass
+        
+        self.main_button = ctk.CTkButton(master=self,
+                                            width = self.width,
+                                            height = self.height / 5,
+                                            fg_color=primary,
+                                            hover_color=secondary_dark,
+                                            border_width=0,
+                                            border_color=(accent1, spare),
+                                            corner_radius=10,
+                                            text='upload file',
+                                            font=("Roboto", 40),
+                                            command = self.root.main_button_callback)
+        #self.main_button.pack(pady=(0, 10), padx=10)
+        
+        #self.main_button.bind('<Return>', self.root.main_button_callback)
+        
+        self.close_file_button = ctk.CTkButton(master=self,
+                                            width = self.width,
+                                            height = self.height / 15,
+                                            fg_color=(accent1, primary),
+                                            hover_color=(accent1_light, primary_dark),
+                                            border_width=3,
+                                            border_color=(accent1, spare),
+                                            corner_radius=10,
+                                            text='close file',
+                                            font=("Roboto", 15),
+                                            command = self.root.close_file) #need to add later
 
 class bottom_options_frame(ctk.CTkFrame):
-    def __init__(self, parent, width, height):
+    def __init__(self, parent, root, width, height):
         self.width = ((width)/3)*2
         self.height = height
         super().__init__(parent, width=self.width, height=self.height, fg_color=primary, corner_radius = 0)
         self.grid_propagate(False)
         self.pack_propagate(False)
+        self.root = root
         self.initialise_ui()
         
     def initialise_ui(self):
-        self.bottom_options_panel = bottom_options_panel(parent = self, width = self.width, height = self.height)
+        self.bottom_options_panel = bottom_options_panel(parent = self, root = self.root, width = self.width, height = self.height)
         self.bottom_options_panel.pack(padx=(10, 10), pady=(10, 10))
         
 class terminal_frame(ctk.CTkFrame):
@@ -446,36 +447,39 @@ class terminal_frame(ctk.CTkFrame):
 
 
 class bottom_right_frame(ctk.CTkFrame):
-    def __init__(self, parent, width, height):
+    def __init__(self, parent, root, width, height):
         self.width = width
         self.height = (height/4)
         super().__init__(parent, width=self.width, height=self.height, fg_color=(primary), corner_radius = 0)
         self.grid_propagate(False)
         self.pack_propagate(False)
+        self.root = root
         self.initialise_ui()
         
     def initialise_ui(self):
         
-        self.bottom_options_frame = bottom_options_frame(parent = self, width = self.width, height = self.height)
+        self.bottom_options_frame = bottom_options_frame(parent = self, root = self.root, width = self.width, height = self.height)
         self.bottom_options_frame.grid(row=0, column=0, padx=0, pady=0)
         
         self.terminal_frame = terminal_frame(parent = self, width = self.width, height = self.height)
         self.terminal_frame.grid(row=0, column=1, padx=0, pady=0)
 
 class right_frame(ctk.CTkFrame):
-    def __init__(self, parent, width, height):
+    def __init__(self, parent, root, width, height):
         self.width = (width/4)*3
         self.height = height
         super().__init__(parent, width=self.width, height=self.height, fg_color=primary, corner_radius = 0)
         self.pack_propagate(False)
         self.grid_propagate(False)
+        self.root = root
         self.initialise_ui()
 
     def initialise_ui(self):
         
         self.top_right_frame = top_right_frame(parent = self, width = self.width, height = self.height)
         self.top_right_frame.pack(padx=0, pady=(0, 0))
-        self.bottom_right_frame = bottom_right_frame(parent = self, width = self.width, height = self.height)
+        
+        self.bottom_right_frame = bottom_right_frame(parent = self, root = self.root, width = self.width, height = self.height)
         self.bottom_right_frame.pack(padx=0, pady=(0, 0))
 
 class exit_dialogue_window(ctk.CTkToplevel):
@@ -530,7 +534,7 @@ class root(tk.Tk):
         
         self.left_frame = left_frame(parent = self, root = self, width = self.width, height = self.height)
         #self.middle_frame = middle_frame(parent = self,  width = self.width, height = self.height)
-        self.right_frame = right_frame(parent = self, width = self.width, height = self.height)
+        self.right_frame = right_frame(parent = self, root = self, width = self.width, height = self.height)
 
         self.left_frame.grid(row=0, column=0, padx=0, pady=0)
         #self.middle_frame.grid(row=0, column=1, padx=0, pady=0)
@@ -576,17 +580,21 @@ class root(tk.Tk):
     def refresh_ui(self): #! set file_active to its new value BEFORE running this function
         
         if self.file_active == True:
+            pass
             
-            self.left_frame.main_tabview.main_button.configure(text="run tool", height = self.height/5/5*3) #this is so scuffed
-            self.left_frame.main_tabview.close_file_button.configure(text="clear", height = self.height/5/5*2)
-            print("tool active")
-            self.left_frame.main_tabview.main_button.pack_configure(pady=(20, 0))
-            self.left_frame.main_tabview.close_file_button.pack(pady=(0, 20), padx=20)
+            #self.left_frame.main_tabview.main_button.configure(text="run tool", height = self.height/5/5)
+            
+            # self.left_frame.main_tabview.main_button.configure(text="run tool", height = self.height/5/5*3) #this is so scuffed NEEDS COMPLETE REWORK
+            # self.left_frame.main_tabview.close_file_button.configure(text="clear", height = self.height/5/5*2)
+            # print("tool active")
+            # self.left_frame.main_tabview.main_button.pack_configure(pady=(0, 50))
+            # self.left_frame.main_tabview.close_file_button.pack(pady=(0, 10), padx=20)
         elif self.file_active == False:
-            self.left_frame.main_tabview.close_file_button.pack_forget()
-            self.left_frame.main_tabview.main_button.configure(text="upload file", height = self.height/4) #this is so scuffed
-            print("no tool active")
-            self.left_frame.main_tabview.main_button.pack_configure(pady=(20, 20))
+            pass
+            # self.left_frame.main_tabview.close_file_button.pack_forget()
+            # self.left_frame.main_tabview.main_button.configure(text="upload file", height = self.height/4) 
+            # print("no tool active")
+            # self.left_frame.main_tabview.main_button.pack_configure(pady=(0, 10))
             #reverse of first case
             
     def exit_app_callback(self):
