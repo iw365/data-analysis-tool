@@ -259,6 +259,56 @@ class top_right_frame(ctk.CTkFrame):
         # self.xy_frame = ctk_xyframe.CTkXYFrame(master=self, width=self.width, height=self.height, corner_radius=10)
         # self.xy_frame.pack(padx=10, pady=10)
 
+class main_buttons_frame(ctk.CTkFrame):
+    def __init__(self, parent, root, width, height):
+        self.width = width
+        self.height = height
+        super().__init__(parent, 
+                        width=(self.width),
+                        height=(self.height),
+                        border_width=0,
+                        border_color=(accent1, accent1),
+                        fg_color="#FF0000",
+                        corner_radius=10)
+        self.grid_propagate(True)
+        self.pack_propagate(True)
+        self.root=root
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+        
+        self.main_button = ctk.CTkButton(master=self,
+                                    #width = self.width,
+                                    #height = self.height,
+                                    fg_color=primary,
+                                    hover_color=secondary_dark,
+                                    border_width=0,
+                                    border_color=(accent1, spare),
+                                    corner_radius=10,
+                                    text='upload file',
+                                    font=("Roboto", 20),
+                                    command = self.main_button_callback)
+        
+        self.close_file_button = ctk.CTkButton(master=self,
+                                    width = self.width,
+                                    height = self.height,
+                                    fg_color=primary,
+                                    hover_color=secondary_dark,
+                                    border_width=0,
+                                    border_color=(accent1, spare),
+                                    corner_radius=10,
+                                    text='close file',
+                                    font=("Roboto", 20),
+                                    command = self.close_file_callback)
+        
+        self.main_button.pack(padx=(10, 10), pady=(10, 10))
+        
+    def main_button_callback(self):
+        self.root.main_button_callback()
+    
+    def close_file_callback(self):
+        self.root.close_file()
+
 class bottom_options_panel(ctk.CTkFrame):
     def __init__(self, parent, root, width, height):
         self.width = width
@@ -272,37 +322,73 @@ class bottom_options_panel(ctk.CTkFrame):
                         corner_radius=10)
         self.grid_propagate(False)
         self.pack_propagate(False)
+        
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        
         self.root=root
         self.initialise_ui()
         
     def initialise_ui(self):
         
-        self.main_button = ctk.CTkButton(master=self,
-                                            width = self.width,
-                                            height = self.height / 5,
-                                            fg_color=primary,
-                                            hover_color=secondary_dark,
-                                            border_width=0,
-                                            border_color=(accent1, spare),
-                                            corner_radius=10,
-                                            text='upload file',
-                                            font=("Roboto", 40),
-                                            command = self.root.main_button_callback)
-        #self.main_button.pack(pady=(0, 10), padx=10)
+        self.main_buttons_frame = main_buttons_frame(parent = self, root = self.root, width = self.width, height = self.height)
+        #self.main_buttons_frame.grid(row=0, column=0, padx=(10, 10), pady=(10, 10), sticky="nsew")
+        self.main_buttons_frame.grid(row=0, column=0, sticky="nsew")
         
-        #self.main_button.bind('<Return>', self.root.main_button_callback)
+        self.button1 = ctk.CTkButton(master=self,
+                                    #width = self.width,
+                                    #height = self.height,
+                                    fg_color=primary,
+                                    hover_color=secondary_dark,
+                                    border_width=0,
+                                    border_color=(accent1, spare),
+                                    corner_radius=10,
+                                    text='button 1',
+                                    font=("Roboto", 20),
+                                    command = self.button1_callback)
         
-        self.close_file_button = ctk.CTkButton(master=self,
-                                            width = self.width,
-                                            height = self.height / 15,
-                                            fg_color=(accent1, primary),
-                                            hover_color=(accent1_light, primary_dark),
-                                            border_width=3,
-                                            border_color=(accent1, spare),
-                                            corner_radius=10,
-                                            text='close file',
-                                            font=("Roboto", 15),
-                                            command = self.root.close_file) #need to add later
+        self.button2 = ctk.CTkButton(master=self,
+                                    #width = self.width,
+                                    #height = self.height,
+                                    fg_color=primary,
+                                    hover_color=secondary_dark,
+                                    border_width=0,
+                                    border_color=(accent1, spare),
+                                    corner_radius=10,
+                                    text='button 2',
+                                    font=("Roboto", 20),
+                                    command = self.button2_callback)
+        
+        self.button3 = ctk.CTkButton(master=self,
+                                    #width = self.width,
+                                    #height = self.height,
+                                    fg_color=primary,
+                                    hover_color=secondary_dark,
+                                    border_width=0,
+                                    border_color=(accent1, spare),
+                                    corner_radius=10,
+                                    text='button 3',
+                                    font=("Roboto", 20),
+                                    command = self.button3_callback)
+        
+        # self.button1.grid(row=0, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
+        # self.button2.grid(row=1, column=0, padx=(10, 10), pady=(10, 10), sticky="nsew")
+        # self.button3.grid(row=1, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
+        
+        self.button1.grid(row=0, column=1, sticky="nsew")
+        self.button2.grid(row=1, column=0, sticky="nsew")
+        self.button3.grid(row=1, column=1, sticky="nsew")
+        
+    def button1_callback(self):
+        print("button 1")
+    
+    def button2_callback(self):
+        print("button 2")
+    
+    def button3_callback(self):
+        print("button 3")
 
 class bottom_options_frame(ctk.CTkFrame):
     def __init__(self, parent, root, width, height):
