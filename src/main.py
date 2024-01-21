@@ -263,6 +263,7 @@ class main_buttons_frame(ctk.CTkFrame):
     def __init__(self, parent, root, width, height):
         self.width = width
         self.height = height
+        print(self.width, self.height)
         super().__init__(parent, 
                         width=(self.width),
                         height=(self.height),
@@ -272,11 +273,16 @@ class main_buttons_frame(ctk.CTkFrame):
                         corner_radius=10)
         self.grid_propagate(True)
         self.pack_propagate(True)
+        
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        
         self.root=root
         self.initialise_ui()
         
     def initialise_ui(self):
         
+        print(self.width, self.height)
         self.main_button = ctk.CTkButton(master=self,
                                     #width = self.width,
                                     #height = self.height,
@@ -289,6 +295,8 @@ class main_buttons_frame(ctk.CTkFrame):
                                     font=("Roboto", 20),
                                     command = self.main_button_callback)
         
+        self.main_button.grid(padx=(0, 0), pady=(0, 0), sticky="nsew")
+        
         self.close_file_button = ctk.CTkButton(master=self,
                                     width = self.width,
                                     height = self.height,
@@ -300,8 +308,6 @@ class main_buttons_frame(ctk.CTkFrame):
                                     text='close file',
                                     font=("Roboto", 20),
                                     command = self.close_file_callback)
-        
-        self.main_button.pack(padx=(10, 10), pady=(10, 10))
         
     def main_button_callback(self):
         self.root.main_button_callback()
@@ -334,7 +340,7 @@ class bottom_options_panel(ctk.CTkFrame):
     def initialise_ui(self):
         
         self.main_buttons_frame = main_buttons_frame(parent = self, root = self.root, width = self.width, height = self.height)
-        #self.main_buttons_frame.grid(row=0, column=0, padx=(10, 10), pady=(10, 10), sticky="nsew")
+        self.main_buttons_frame.grid(row=0, column=0, padx=(20, 5), pady=(20, 5), sticky="nsew")
         self.main_buttons_frame.grid(row=0, column=0, sticky="nsew")
         
         self.button1 = ctk.CTkButton(master=self,
@@ -373,13 +379,13 @@ class bottom_options_panel(ctk.CTkFrame):
                                     font=("Roboto", 20),
                                     command = self.button3_callback)
         
-        # self.button1.grid(row=0, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
-        # self.button2.grid(row=1, column=0, padx=(10, 10), pady=(10, 10), sticky="nsew")
-        # self.button3.grid(row=1, column=1, padx=(10, 10), pady=(10, 10), sticky="nsew")
+        self.button1.grid(row=0, column=1, padx=(5, 20), pady=(20, 5), sticky="nsew")
+        self.button2.grid(row=1, column=0, padx=(20, 5), pady=(5, 20), sticky="nsew")
+        self.button3.grid(row=1, column=1, padx=(5, 20), pady=(5, 20), sticky="nsew")
         
-        self.button1.grid(row=0, column=1, sticky="nsew")
-        self.button2.grid(row=1, column=0, sticky="nsew")
-        self.button3.grid(row=1, column=1, sticky="nsew")
+        # self.button1.grid(row=0, column=1, sticky="nsew")
+        # self.button2.grid(row=1, column=0, sticky="nsew")
+        # self.button3.grid(row=1, column=1, sticky="nsew")
         
     def button1_callback(self):
         print("button 1")
@@ -477,7 +483,7 @@ class terminal_frame(ctk.CTkFrame):
         
         self.terminal_clear_tooltip = CTkToolTip(self.terminal_clear_button,
                                                 corner_radius=10,
-                                                message="Clear Terminal") #!NEED TO ADD OTHER TOOLTIPS
+                                                message="Clear terminal") #!NEED TO ADD OTHER TOOLTIPS
         
         # Add third frame with tertiary color
         self.terminal_header_frame_3 = ctk.CTkFrame(master=self.terminal_header_frame,
@@ -488,7 +494,7 @@ class terminal_frame(ctk.CTkFrame):
                                                     border_width=0)
         self.terminal_header_frame_3.grid(row=0, column=2, padx=0, pady=0)
         
-        self.unused_button = ctk.CTkButton(master=self.terminal_header_frame_3,
+        self.terminal_save_button = ctk.CTkButton(master=self.terminal_header_frame_3,
                                             width = (self.width/8)*1,
                                             height = (self.height/6)*1,
                                             fg_color=secondary,
@@ -499,8 +505,12 @@ class terminal_frame(ctk.CTkFrame):
                                             text='[-]',
                                             text_color=accent1,
                                             font=("Arial", 14),
-                                            command = self.debug_callback)
-        self.unused_button.pack(padx=(0, 0), pady=(0, 0))
+                                            command = self.save_terminal_to_file)
+        self.terminal_save_button.pack(padx=(0, 0), pady=(0, 0))
+        
+        self.terminal_save_tooltip = CTkToolTip(self.terminal_save_button,
+                                                corner_radius=10,
+                                                message="Save terminal data to file") #!NEED TO ADD OTHER TOOLTIPS
         
         self.terminal = ctk.CTkTextbox(master=self,
                                     width=(self.width),
@@ -530,6 +540,13 @@ class terminal_frame(ctk.CTkFrame):
     def debug_callback(self):
         root.terminal_callback("DEBUG", "soft")
         print("debug")
+        
+    def save_terminal_to_file(self):
+        directory = 'output_folder'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        with open(os.path.join(directory, 'terminal_output.txt'), 'w') as file:
+            file.write(self.terminal.get('1.0', 'end'))
 
 
 class bottom_right_frame(ctk.CTkFrame):
@@ -666,9 +683,8 @@ class root(tk.Tk):
     def refresh_ui(self): #! set file_active to its new value BEFORE running this function
         
         if self.file_active == True:
+            self.bottom = self.right_frame.bottom_right_frame.bottom_options_frame.bottom_options_panel.main_buttons_frame
             pass
-            
-            #self.left_frame.main_tabview.main_button.configure(text="run tool", height = self.height/5/5)
             
             # self.left_frame.main_tabview.main_button.configure(text="run tool", height = self.height/5/5*3) #this is so scuffed NEEDS COMPLETE REWORK
             # self.left_frame.main_tabview.close_file_button.configure(text="clear", height = self.height/5/5*2)
