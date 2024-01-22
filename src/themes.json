@@ -1,8 +1,8 @@
 {
     "light" : {
         "example-light-theme" : {
-            "primary" : "#CDCDCD",
-            "secondary" : "#E6E6E9",
+            "primary" : "#E2E2E2",
+            "secondary" : "#F6F6F9",
             "accent1" : "#0C1B33",
             "accent2" : "#F18F01",
             "spare" : "#F4F4F6"

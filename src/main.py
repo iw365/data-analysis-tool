@@ -116,22 +116,22 @@ class main_tabview(ctk.CTkTabview):
                         corner_radius=10,
                         border_width=0,
                         border_color=accent1,
-                        segmented_button_fg_color=primary,
+                        segmented_button_fg_color=(secondary, secondary),
                         segmented_button_selected_color=accent2,
-                        segmented_button_unselected_color=secondary,
+                        segmented_button_unselected_color=(primary, primary),
                         segmented_button_selected_hover_color=accent2,
-                        segmented_button_unselected_hover_color=accent2)
+                        segmented_button_unselected_hover_color=(secondary_dark, primary_dark))
         
         self.root = root
 
         # create tabs
-        self.add("tab 1")
-        self.add("tab 2")
-        self.add("tab 3")
-        self.add("tab 4")
+        self.add("Graph") # THIS WILL BE FOR CHANGING THE GRAPH TYPE
+        self.add("Data") #THIS WILL BE FOR EXTRACTING DATA FROM FILE
+        self.add("Appearance") # THIS WILL BE FOR CUSTOMIZING THE APPEARANCE OF THE GRAPH
+        self.add("Modifiy") #THIS WILL BE FOR MODIFYING THE DATA 
 
         # add widgets on tabs
-        self.label = ctk.CTkLabel(master=self.tab("tab 1"))
+        self.label = ctk.CTkLabel(master=self.tab("Graph"))
         self.label.pack(padx=10, pady=10)
 
 # CURRENTLY UNUSED
@@ -269,7 +269,7 @@ class main_buttons_frame(ctk.CTkFrame):
                         height=(self.height),
                         border_width=0,
                         border_color=(accent1, accent1),
-                        fg_color="#FF0000",
+                        fg_color=secondary,
                         corner_radius=10)
         self.grid_propagate(True)
         self.pack_propagate(True)
@@ -286,26 +286,28 @@ class main_buttons_frame(ctk.CTkFrame):
         self.main_button = ctk.CTkButton(master=self,
                                     #width = self.width,
                                     #height = self.height,
-                                    fg_color=primary,
-                                    hover_color=secondary_dark,
+                                    fg_color=(primary, primary),
+                                    hover_color=(primary_dark, primary_dark),
                                     border_width=0,
                                     border_color=(accent1, spare),
                                     corner_radius=10,
                                     text='upload file',
+                                    text_color=(accent1, '#FFFFFF'),
                                     font=("Roboto", 20),
                                     command = self.main_button_callback)
         
-        self.main_button.grid(padx=(0, 0), pady=(0, 0), sticky="nsew")
+        self.main_button.grid(row=0, column=0, padx=(0, 0), pady=(0, 0), sticky="nsew")
         
         self.close_file_button = ctk.CTkButton(master=self,
-                                    width = self.width,
-                                    height = self.height,
-                                    fg_color=primary,
-                                    hover_color=secondary_dark,
+                                    # width = self.width,
+                                    # height = self.height,
+                                    fg_color=(primary, primary),
+                                    hover_color=(primary_dark, primary_dark),
                                     border_width=0,
                                     border_color=(accent1, spare),
                                     corner_radius=10,
                                     text='close file',
+                                    text_color=(accent1, '#FFFFFF'),
                                     font=("Roboto", 20),
                                     command = self.close_file_callback)
         
@@ -346,36 +348,39 @@ class bottom_options_panel(ctk.CTkFrame):
         self.button1 = ctk.CTkButton(master=self,
                                     #width = self.width,
                                     #height = self.height,
-                                    fg_color=primary,
-                                    hover_color=secondary_dark,
+                                    fg_color=(primary, primary),
+                                    hover_color=(primary_dark, primary_dark),
                                     border_width=0,
                                     border_color=(accent1, spare),
                                     corner_radius=10,
                                     text='button 1',
+                                    text_color=(accent1, '#FFFFFF'),
                                     font=("Roboto", 20),
                                     command = self.button1_callback)
         
         self.button2 = ctk.CTkButton(master=self,
                                     #width = self.width,
                                     #height = self.height,
-                                    fg_color=primary,
-                                    hover_color=secondary_dark,
+                                    fg_color=(primary, primary),
+                                    hover_color=(primary_dark, primary_dark),
                                     border_width=0,
                                     border_color=(accent1, spare),
                                     corner_radius=10,
                                     text='button 2',
+                                    text_color=(accent1, '#FFFFFF'),
                                     font=("Roboto", 20),
                                     command = self.button2_callback)
         
         self.button3 = ctk.CTkButton(master=self,
                                     #width = self.width,
                                     #height = self.height,
-                                    fg_color=primary,
-                                    hover_color=secondary_dark,
+                                    fg_color=(primary, primary),
+                                    hover_color=(primary_dark, primary_dark),
                                     border_width=0,
                                     border_color=(accent1, spare),
                                     corner_radius=10,
                                     text='button 3',
+                                    text_color=(accent1, '#FFFFFF'),
                                     font=("Roboto", 20),
                                     command = self.button3_callback)
         
@@ -453,9 +458,9 @@ class terminal_frame(ctk.CTkFrame):
         self.terminal_header_title_frame.grid(row=0, column=0, padx=0, pady=0)
         
         self.terminal_header_title_label = ctk.CTkLabel(master=self.terminal_header_title_frame,
-                                                text="Terminal",
-                                                text_color=(accent1, '#FFFFFF'),
-                                                font=("Arial", 20))
+                                                        text="Terminal",
+                                                        text_color=(accent1, '#FFFFFF'),
+                                                        font=("Arial", 20))
         self.terminal_header_title_label.grid(row=0, column=0, padx=20, pady=5)
         
         # Add second frame with secondary color
@@ -471,7 +476,7 @@ class terminal_frame(ctk.CTkFrame):
                                     width = (self.width/8)*1,
                                     height = (self.height/6)*1,
                                     fg_color=secondary,
-                                    hover_color=secondary_dark,
+                                    hover_color=(secondary_dark, secondary_dark),
                                     border_width=0,
                                     border_color=(accent1, accent1),
                                     corner_radius=10,
@@ -495,17 +500,17 @@ class terminal_frame(ctk.CTkFrame):
         self.terminal_header_frame_3.grid(row=0, column=2, padx=0, pady=0)
         
         self.terminal_save_button = ctk.CTkButton(master=self.terminal_header_frame_3,
-                                            width = (self.width/8)*1,
-                                            height = (self.height/6)*1,
-                                            fg_color=secondary,
-                                            hover_color=secondary_dark,
-                                            border_width=0,
-                                            border_color=(accent1, accent1),
-                                            corner_radius=10,
-                                            text='[-]',
-                                            text_color=accent1,
-                                            font=("Arial", 14),
-                                            command = self.save_terminal_to_file)
+                                                width = (self.width/8)*1,
+                                                height = (self.height/6)*1,
+                                                fg_color=secondary,
+                                                hover_color=(secondary_dark, secondary_dark),
+                                                border_width=0,
+                                                border_color=(accent1, accent1),
+                                                corner_radius=10,
+                                                text='[-]',
+                                                text_color=accent1,
+                                                font=("Arial", 14),
+                                                command = self.save_terminal_to_file)
         self.terminal_save_button.pack(padx=(0, 0), pady=(0, 0))
         
         self.terminal_save_tooltip = CTkToolTip(self.terminal_save_button,
@@ -535,18 +540,18 @@ class terminal_frame(ctk.CTkFrame):
         self.terminal.delete("0.0", "end")
         self.terminal.configure(state = "disabled")
         root.terminal_callback("TERMINAL CLEARED", "hard")
-        #self.terminal.insert("0.0", "TERMINAL CLEARED\n\n----------\n\n")
     
     def debug_callback(self):
         root.terminal_callback("DEBUG", "soft")
         print("debug")
         
     def save_terminal_to_file(self):
-        directory = 'output_folder'
+        directory = 'exports/terminal_data'
         if not os.path.exists(directory):
             os.makedirs(directory)
-        with open(os.path.join(directory, 'terminal_output.txt'), 'w') as file:
+        with open(os.path.join(directory, f'terminal_data_{dt.datetime.now().strftime("%Y-%m-%d")}.txt'), 'w') as file:
             file.write(self.terminal.get('1.0', 'end'))
+        root.terminal_callback("Terminal data saved", "hard")
 
 
 class bottom_right_frame(ctk.CTkFrame):
@@ -682,17 +687,29 @@ class root(tk.Tk):
     
     def refresh_ui(self): #! set file_active to its new value BEFORE running this function
         
+        self.bottom = self.right_frame.bottom_right_frame.bottom_options_frame.bottom_options_panel
+        
         if self.file_active == True:
-            self.bottom = self.right_frame.bottom_right_frame.bottom_options_frame.bottom_options_panel.main_buttons_frame
-            pass
             
-            # self.left_frame.main_tabview.main_button.configure(text="run tool", height = self.height/5/5*3) #this is so scuffed NEEDS COMPLETE REWORK
+            self.bottom.main_buttons_frame.close_file_button.grid(row=0, column=1, padx=(5, 0), pady=(0, 0), sticky="nsew")
+            self.grid_columnconfigure(0, weight=3)
+            self.grid_columnconfigure(1, weight=1)
+            self.bottom.main_buttons_frame.main_button.configure(text="RUN")
+            
+            self.bottom.grid_rowconfigure(0, weight=1)
+            self.bottom.grid_rowconfigure(1, weight=1)
+            
+            self.bottom.grid_columnconfigure(0, weight=1)
+            self.bottom.grid_columnconfigure(1, weight=1)
             # self.left_frame.main_tabview.close_file_button.configure(text="clear", height = self.height/5/5*2)
             # print("tool active")
             # self.left_frame.main_tabview.main_button.pack_configure(pady=(0, 50))
             # self.left_frame.main_tabview.close_file_button.pack(pady=(0, 10), padx=20)
         elif self.file_active == False:
-            pass
+            
+            self.bottom.main_buttons_frame.close_file_button.grid_forget()
+            self.bottom.main_buttons_frame.main_button.configure(text="upload file")
+
             # self.left_frame.main_tabview.close_file_button.pack_forget()
             # self.left_frame.main_tabview.main_button.configure(text="upload file", height = self.height/4) 
             # print("no tool active")
