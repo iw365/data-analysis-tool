@@ -26,7 +26,13 @@ from tkinter import filedialog
 import customtkinter as ctk
 from CTkMenuBar import *
 from CTkToolTip import *
+from PIL import Image
+
 from modules.CTkXYFrame import ctk_xyframe
+
+import matplotlib
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 import json
 import datetime as dt
@@ -209,34 +215,50 @@ class left_frame(ctk.CTkFrame):
         self.main_tabview = main_tabview(parent = self, root=self.root, width = self.width, height = self.height)
         self.main_tabview.pack(pady=(0, 10), padx=(10, 10))
 
-# class middle_frame(ctk.CTkFrame):
+# class y_frame(ctk.CTkScrollableFrame):
 #     def __init__(self, parent, width, height):
-#         self.width = width/2
+#         self.width = width
 #         self.height = height
-#         super().__init__(parent, width=self.width, height=self.height, fg_color='#00FF00', corner_radius = 0)
+#         super().__init__(parent,
+#                         width=self.width,
+#                         height=self.height,
+#                         fg_color=secondary,
+#                         corner_radius = 10,
+#                         scrollbar_button_color=accent1,
+#                         scrollbar_button_hover_color=accent1_dark,)
+#         self.pack_propagate(False)
+#         #self.grid_propagate(False)
 #         self.initialise_ui()
-
-#     def initialise_ui(self):
-#         self.middle_sub_frame_top = middle_sub_frame_top(parent = self, width = self.width, height = self.height)
-#         self.middle_sub_frame_middle = middle_sub_frame_middle(parent = self, width = self.width, height = self.height)
-#         self.middle_sub_frame_bottom = middle_sub_frame_bottom(parent = self, width = self.width, height = self.height)
         
-#         self.middle_sub_frame_top.grid(row=0, column=0, padx=0, pady=0)
-#         self.middle_sub_frame_middle.grid(row=1, column=0, padx=0, pady=0)
-#         self.middle_sub_frame_bottom.grid(row=2, column=0, padx=0, pady=0)
+#     def initialise_ui(self):
+#         pass
 
-class y_frame(ctk.CTkScrollableFrame):
+class data_tabview(ctk.CTkTabview):
     def __init__(self, parent, width, height):
         self.width = width
         self.height = height
-        super().__init__(parent,
+        super().__init__(master=parent,
                         width=self.width,
                         height=self.height,
+                        text_color=accent1,
                         fg_color=secondary,
-                        corner_radius = 10,
-                        scrollbar_button_color=accent1,
-                        scrollbar_button_hover_color=accent1_dark,)
-        
+                        corner_radius=10,
+                        border_width=0,
+                        border_color=accent1,
+                        segmented_button_fg_color=(secondary, secondary),
+                        segmented_button_selected_color=accent2,
+                        segmented_button_unselected_color=(primary, primary),
+                        segmented_button_selected_hover_color=accent2,
+                        segmented_button_unselected_hover_color=(secondary_dark, primary_dark))
+
+        # create tabs
+        self.add("Graph")
+        self.add("Table")
+
+        # add widgets on tabs
+        self.label = ctk.CTkLabel(master=self.tab("Graph"))
+        self.label.pack(padx=10, pady=10)
+
 class top_right_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
         self.width = width
@@ -252,12 +274,17 @@ class top_right_frame(ctk.CTkFrame):
         self.initialise_ui()
         
     def initialise_ui(self):
-        self.y_frame = y_frame(parent=self, width=self.width, height=self.height)
-        self.y_frame.pack(padx=10, pady=10)
         
-        # EXPERIMENTAL
-        # self.xy_frame = ctk_xyframe.CTkXYFrame(master=self, width=self.width, height=self.height, corner_radius=10)
-        # self.xy_frame.pack(padx=10, pady=10)
+        self.data_tabview = data_tabview(parent = self, width = self.width, height = self.height)
+        self.data_tabview.pack(pady=(0, 10), padx=(10, 10))
+        
+        # self.fig = Figure(figsize=(5, 5), dpi=100)
+        # self.plot = self.fig.add_subplot(111)
+        # self.plot.plot([0, 1, 2, 3, 4], [0, 1, 4, 9, 16])
+        
+        # self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+        # self.canvas.draw()
+        # self.canvas.get_tk_widget().pack()
 
 class main_buttons_frame(ctk.CTkFrame):
     def __init__(self, parent, root, width, height):
@@ -472,6 +499,8 @@ class terminal_frame(ctk.CTkFrame):
                                                     border_width=0)
         self.terminal_header_frame_2.grid(row=0, column=1, padx=(0,5), pady=0)
         
+        self.bin_icon = ctk.CTkImage(light_image=Image.open("assets/bin_icon_light.png"), dark_image=Image.open("assets/bin_icon_dark.png"), size=(round(width/64), round(height/36)))
+        
         self.terminal_clear_button = ctk.CTkButton(master=self.terminal_header_frame_2,
                                     width = (self.width/8)*1,
                                     height = (self.height/6)*1,
@@ -480,7 +509,8 @@ class terminal_frame(ctk.CTkFrame):
                                     border_width=0,
                                     border_color=(accent1, accent1),
                                     corner_radius=10,
-                                    text='[x]',
+                                    text='',
+                                    image=self.bin_icon,
                                     text_color=accent1,
                                     font=("Arial", 14),
                                     command = self.clear_terminal)
@@ -499,6 +529,8 @@ class terminal_frame(ctk.CTkFrame):
                                                     border_width=0)
         self.terminal_header_frame_3.grid(row=0, column=2, padx=0, pady=0)
         
+        self.download_icon = ctk.CTkImage(light_image=Image.open("assets/download_icon_light.png"), dark_image=Image.open("assets/download_icon_dark.png"), size=(round(width/64), round(height/36)))
+        
         self.terminal_save_button = ctk.CTkButton(master=self.terminal_header_frame_3,
                                                 width = (self.width/8)*1,
                                                 height = (self.height/6)*1,
@@ -507,9 +539,10 @@ class terminal_frame(ctk.CTkFrame):
                                                 border_width=0,
                                                 border_color=(accent1, accent1),
                                                 corner_radius=10,
-                                                text='[-]',
+                                                text='',
                                                 text_color=accent1,
                                                 font=("Arial", 14),
+                                                image=self.download_icon,
                                                 command = self.save_terminal_to_file)
         self.terminal_save_button.pack(padx=(0, 0), pady=(0, 0))
         
