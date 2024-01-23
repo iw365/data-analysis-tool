@@ -256,8 +256,16 @@ class data_tabview(ctk.CTkTabview):
         self.add("Table")
 
         # add widgets on tabs
-        self.label = ctk.CTkLabel(master=self.tab("Graph"))
-        self.label.pack(padx=10, pady=10)
+        self.frame = ctk.CTkFrame(master=self.tab("Graph"))
+        self.frame.pack(padx=10, pady=10)
+        
+        self.fig = Figure(figsize=(5, 5), dpi=100)
+        self.plot = self.fig.add_subplot(111)
+        self.plot.plot([0, 1, 2, 3, 4], [0, 1, 4, 9, 16])
+        
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.frame)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack()
 
 class top_right_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
@@ -277,14 +285,6 @@ class top_right_frame(ctk.CTkFrame):
         
         self.data_tabview = data_tabview(parent = self, width = self.width, height = self.height)
         self.data_tabview.pack(pady=(0, 10), padx=(10, 10))
-        
-        # self.fig = Figure(figsize=(5, 5), dpi=100)
-        # self.plot = self.fig.add_subplot(111)
-        # self.plot.plot([0, 1, 2, 3, 4], [0, 1, 4, 9, 16])
-        
-        # self.canvas = FigureCanvasTkAgg(self.fig, master=self)
-        # self.canvas.draw()
-        # self.canvas.get_tk_widget().pack()
 
 class main_buttons_frame(ctk.CTkFrame):
     def __init__(self, parent, root, width, height):
