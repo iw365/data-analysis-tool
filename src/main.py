@@ -26,6 +26,7 @@ from tkinter import filedialog
 import customtkinter as ctk
 from CTkMenuBar import *
 from CTkToolTip import *
+from CTkTable import *
 from PIL import Image
 
 from modules.CTkXYFrame import ctk_xyframe
@@ -33,9 +34,11 @@ from modules.CTkXYFrame import ctk_xyframe
 import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.patches as patches
 
 import json
 import datetime as dt
+import csv
 
 from settings import active_light_theme, active_dark_theme, active_theme_type
 from launcher_functions import *
@@ -257,15 +260,39 @@ class data_tabview(ctk.CTkTabview):
 
         # add widgets on tabs
         self.frame = ctk.CTkFrame(master=self.tab("Graph"))
-        self.frame.pack(padx=10, pady=10)
+        self.frame.pack(padx=10, pady=(0, 10), expand = True, fill = "both")
         
-        self.fig = Figure(figsize=(5, 5), dpi=100)
-        self.plot = self.fig.add_subplot(111)
-        self.plot.plot([0, 1, 2, 3, 4], [0, 1, 4, 9, 16])
+        # self.fig = Figure(figsize=(5, 5), dpi=100)
+        # self.plot = self.fig.add_subplot(111)
+        # self.plot.plot([0, 1, 2, 3, 4], [0, 1, 4, 9, 16])
         
-        self.canvas = FigureCanvasTkAgg(self.fig, master=self.frame)
-        self.canvas.draw()
-        self.canvas.get_tk_widget().pack()
+        # self.canvas = FigureCanvasTkAgg(self.fig, master=self.frame)
+        # self.canvas.draw()
+        # self.canvas.get_tk_widget().pack(expand = True, fill = "both")
+        
+        self.xy_table_frame = ctk_xyframe.CTkXYFrame(master = self.tab("Table"), 
+                                                    fg_color=(secondary),
+                                                    scrollbar_button_color=accent1,
+                                                    scrollbar_button_hover_color=accent1_dark)
+        self.xy_table_frame.pack(padx=(10, 10), pady=(0, 10), expand = True, fill = "both")
+        
+        self.values = [[0], [0]]
+        
+        self.table = CTkTable(master=self.xy_table_frame,
+                                    font=("Arial", width/75),
+                                    values = self.values,
+                                    width = width/14,
+                                    height = height/14,
+                                    colors=(primary, primary_dark),
+                                    border_width=0,
+                                    border_color=(contrast_colour),
+                                    padx=0,
+                                    pady=0)
+        
+        #self.table.pack(padx = 10, pady = (0, 10))
+        
+        #cell_tooltip = CTkToolTip(self.table.frame[row, column], message="50") #! no idea
+        # https://github.com/Akascape/CTkTable/discussions/15
 
 class top_right_frame(ctk.CTkFrame):
     def __init__(self, parent, width, height):
@@ -554,7 +581,7 @@ class terminal_frame(ctk.CTkFrame):
                                     width=(self.width),
                                     height=((self.height/6)*5)-20,
                                     state="normal",
-                                    font=("Consolas", 12),
+                                    font=("Consolas", round(width/128)),
                                     text_color=(accent1, '#FFFFFF'),
                                     scrollbar_button_color=accent1,
                                     scrollbar_button_hover_color=accent1_dark,
@@ -707,13 +734,86 @@ class root(tk.Tk):
             root.terminal_callback(f"FILE SELECTED: {self.filename}", "hard")
             self.file_active = True
             self.refresh_ui()
-            #run_tool(root.filename)
             
+            self.right_frame.top_right_frame.data_tabview.table.pack(padx = (0, 0), pady = (0, 00))
+            
+            self.run_tool(self.filename)
+            
+    # MAIN RUNNING METHOD
     def run_tool(self, filename):
         print("guh")
         print(filename)
         
+        # Initialise arrays
+        
+        self.raw_x_data = [] #will be changed when user selects axis data
+        self.raw_y_data = []
+        self.table_data = []
+        self.graph_data = []
+        
+        # table data
+        # translate csv data into a format that can be used by the table
+        
+        with open(filename, 'r') as csvfile:
+            self.csvreader = csv.reader(csvfile)
+            # self.headers = next(self.csvreader)
+            # self.x_label = self.headers[0]
+            # self.y_label = self.headers[1]
+            for row in self.csvreader:
+                self.raw_x_data.append(row[0])
+                self.raw_y_data.append(row[1])
+        print(self.raw_x_data, self.raw_y_data)
+        
+        #split data into pairs of x and y values - e.g. [[x1, y1], [x2, y2], [x3, y3]]
+        self.table_data = list(zip(self.raw_x_data, self.raw_y_data))
+        print(self.table_data)
+        
+        # calculate new number of rows and columns for table
+        self.new_rows = len(self.table_data)
+        self.new_columns = len(self.table_data[0])
+        
+        # check if table already exists
+        if self.right_frame.top_right_frame.data_tabview.table is not None:
+            # if it does, get its current number of rows and columns
+            self.old_rows = self.right_frame.top_right_frame.data_tabview.table.rows
+            self.old_columns = self.right_frame.top_right_frame.data_tabview.table.columns
+            
+            print(self.old_rows, self.old_columns, self.new_rows, self.new_columns)
+            
+            #compare old and new number of rows
+            if self.old_rows == self.new_rows:
+                pass
+            elif self.old_rows < self.new_rows:
+                #if new rows are greater than old rows, add new rows
+                for i in range(self.new_rows - self.old_rows):
+                    self.right_frame.top_right_frame.data_tabview.table.add_row(list(self.raw_y_data[i]))
+            elif self.old_rows > self.new_rows:
+                #if new rows are less than old rows, remove rows
+                for i in range(self.old_rows - self.new_rows):
+                    print('if this runs something is horribly wrong')
+                    self.right_frame.top_right_frame.data_tabview.table.delete_row()
+                
+            #compare old and new number of columns
+            if self.old_columns == self.new_columns:
+                pass
+            elif self.old_columns < self.new_columns:
+                #if new columns are greater than old columns, add new columns
+                for i in range(self.new_columns - self.old_columns):
+                    self.right_frame.top_right_frame.data_tabview.table.add_column((self.raw_x_data[i]))
+            elif self.old_columns > self.new_columns:
+                #if new columns are less than old columns, remove columns
+                for i in range(self.old_columns - self.new_columns):
+                    self.right_frame.top_right_frame.data_tabview.table.delete_column()
+        
+        self.right_frame.top_right_frame.data_tabview.table.update_values(self.table_data)
+        
+        #switch tab to table tab
+        self.right_frame.top_right_frame.data_tabview.set("Table")
+        
     def close_file(self):
+        
+        self.right_frame.top_right_frame.data_tabview.table.pack_forget()
+        
         self.file_active = False
         print("closed file")
         self.refresh_ui()
@@ -734,20 +834,13 @@ class root(tk.Tk):
             
             self.bottom.grid_columnconfigure(0, weight=1)
             self.bottom.grid_columnconfigure(1, weight=1)
-            # self.left_frame.main_tabview.close_file_button.configure(text="clear", height = self.height/5/5*2)
-            # print("tool active")
-            # self.left_frame.main_tabview.main_button.pack_configure(pady=(0, 50))
-            # self.left_frame.main_tabview.close_file_button.pack(pady=(0, 10), padx=20)
+            
+            #self.right_frame.top_right_frame.data_tabview.xy_table_frame.configure(fg_color=contrast_colour)
+
         elif self.file_active == False:
             
             self.bottom.main_buttons_frame.close_file_button.grid_forget()
             self.bottom.main_buttons_frame.main_button.configure(text="upload file")
-
-            # self.left_frame.main_tabview.close_file_button.pack_forget()
-            # self.left_frame.main_tabview.main_button.configure(text="upload file", height = self.height/4) 
-            # print("no tool active")
-            # self.left_frame.main_tabview.main_button.pack_configure(pady=(0, 10))
-            #reverse of first case
             
     def exit_app_callback(self):
         #root.destroy()
@@ -789,14 +882,19 @@ if __name__ == "__main__":
     with open('themes.json', 'r') as file:
         themes_data = json.load(file)
     
+    global contrast_colour
+    
     match active_theme_type:
         case 'light':
             theme = themes_data["light"][f"{active_light_theme}"]
             ctk.set_appearance_mode("light") # Modes: "System" (standard), "Dark", "Light"
+            contrast_colour = "#000000"
         case 'dark':
             theme = themes_data["dark"][f"{active_dark_theme}"]
             print('debug i hate this')
             ctk.set_appearance_mode("dark") # Modes: "System" (standard), "Dark", "Light"
+            contrast_colour = "#FFFFFF"
+            
 
     primary = theme['primary']
     secondary = theme['secondary']
