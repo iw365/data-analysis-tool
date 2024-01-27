@@ -30,6 +30,7 @@ from CTkTable import *
 from PIL import Image
 
 from modules.CTkXYFrame import ctk_xyframe
+from modules.CTkScrollableDropdown import *
 
 import matplotlib
 from matplotlib.figure import Figure
@@ -113,6 +114,157 @@ def darken_color(hex_color, factor=0.25):
 #     def initialise_ui(self):
 #         pass
 
+class new_figure_popup(ctk.CTkToplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.geometry('360x640')
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+        self.title("Exit")
+        self.resizable(False, False) # disable resizing
+        self.focus_force() # make window focused
+        self.grab_set() # make window modal
+        
+        self.background = ctk.CTkFrame(master=self,
+                                        width=360,
+                                        height=640,
+                                        fg_color=primary,
+                                        corner_radius = 0)
+        self.background.pack_propagate(False)
+        self.background.grid_propagate(False)
+        self.background.pack(padx=0, pady=0)
+        
+        self.exit_label = ctk.CTkButton(master=self.background,
+                                        text="Plot",
+                                        fg_color=primary,
+                                        text_color=accent1,
+                                        font=("Arial", 20))
+        self.exit_label.pack(pady=20, padx=20)
+        
+
+class current_figure_frame(ctk.CTkFrame):
+    def __init__(self, parent, width, height):
+        self.width = width / 2
+        self.height = height / 30
+        super().__init__(parent,
+                        width=self.width,
+                        height=self.height,
+                        fg_color=secondary,
+                        #fg_color="#FF0000",
+                        corner_radius = 10)
+        
+        self.toplevel_window = None
+        
+        self.pack_propagate(False)
+        self.grid_propagate(False)
+        
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_columnconfigure(1, weight=5)
+        
+        self.grid_rowconfigure(2, weight=1)
+        self.grid_columnconfigure(2, weight=5)
+        
+        self.initialise_ui()
+    
+    def initialise_ui(self):
+        print(f"fjnaujnfeije{self.width, self.height}")
+        
+        self.current_figure_dropdown = ctk.CTkOptionMenu(master=self,
+                                                        width=self.width,
+                                                        height=self.height,
+                                                        values=["Option 1", "Option 2", "Option 42 long long long..."],
+                                                        fg_color=(accent1, primary),
+                                                        button_color=(accent1, primary),
+                                                        button_hover_color=(accent1_light, accent2),
+                                                        dropdown_fg_color=(accent1, primary),
+                                                        dropdown_hover_color=(accent1_light, accent2), 
+                                                        dropdown_text_color="#FFFFFF",
+                                                        corner_radius=10,
+                                                        font=("Arial", 14))
+        self.current_figure_dropdown.grid(row=0, column=0, padx=(0, 5), pady=(0, 0))
+        
+        CTkScrollableDropdown(self.current_figure_dropdown,
+                            values=["Option 1", "Option 2", "Option 42 long long long...", "another one weeeeeeee", "another"],
+                            fg_color=(primary, primary),
+                            #hover_color=(secondary_dark, secondary_light), #! not sure why this doesnt work
+                            hover_color=('#ff0000'),
+                            frame_corner_radius=15,
+                            frame_border_width=0,
+                            button_color=(secondary, secondary),
+                            scrollbar_button_color=(accent1, secondary),
+                            resize=True)
+        
+        self.add_figure_button = ctk.CTkButton(master=self,
+                                                width=self.width,
+                                                height=self.height,
+                                                fg_color=(primary, primary),
+                                                hover_color=(primary_dark, primary_dark),
+                                                border_width=0,
+                                                border_color=(accent1, spare),
+                                                corner_radius=10,
+                                                text='+',
+                                                text_color=(accent1, '#FFFFFF'),
+                                                font=("Roboto", 20),
+                                                command=self.add_figure_callback)
+        self.add_figure_button.grid(row=0, column=1, padx=(0, 5), pady=(0, 0))
+        
+        self.remove_figure_button = ctk.CTkButton(master=self,
+                                                width=self.width,
+                                                height=self.height,
+                                                fg_color=(primary, primary),
+                                                hover_color=(primary_dark, primary_dark),
+                                                border_width=0,
+                                                border_color=(accent1, spare),
+                                                corner_radius=10,
+                                                text='x',
+                                                text_color=(accent1, '#FFFFFF'),
+                                                font=("Roboto", 20))
+        self.remove_figure_button.grid(row=0, column=2, padx=(0, 0), pady=(0, 0))
+        
+    def add_figure_callback(self):
+        
+        if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
+                self.toplevel_window = new_figure_popup(self)  # create window if its None or destroyed
+        else:
+            self.toplevel_window.focus()
+
+class graph_tab_frame(ctk.CTkScrollableFrame):
+    def __init__(self, parent, width, height):
+        self.width = width
+        self.height = height
+        super().__init__(parent,
+                        width=self.width,
+                        height=self.height,
+                        fg_color=secondary,
+                        #fg_color='#FF0000',
+                        corner_radius = 10,
+                        scrollbar_button_color=(accent1, primary),
+                        scrollbar_button_hover_color=(accent1_light, primary_dark),)
+        #self.pack_propagate(False)
+        #self.grid_propagate(False)
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+        
+        self.editing_label = ctk.CTkLabel(master=self,
+                                        width=self.width,
+                                        height=self.height/40,
+                                        fg_color=secondary,
+                                        #fg_color="#FF0000",
+                                        text_color=(accent1, '#FFFFFF'),
+                                        corner_radius=10,
+                                        font=("Arial", 14),
+                                        text="Editing: ",
+                                        anchor="w")
+        self.editing_label.pack(padx=(22, 30), pady=(10, 0))
+        
+        self.current_figure_frame = current_figure_frame(parent = self, width = self.width, height = self.height)
+        self.current_figure_frame.pack(padx=(30, 30), pady=(5, 0), expand = True, fill = "both")
+
 class main_tabview(ctk.CTkTabview):
     def __init__(self, root, parent, width, height):
         self.width = width
@@ -134,14 +286,27 @@ class main_tabview(ctk.CTkTabview):
         self.root = root
 
         # create tabs
-        self.add("Graph") # THIS WILL BE FOR CHANGING THE GRAPH TYPE
+        self.add("Graph") # THIS WILL BE FOR CHANGING THE GRAPH TYPE + PARAMETERS
         self.add("Data") #THIS WILL BE FOR EXTRACTING DATA FROM FILE
         self.add("Appearance") # THIS WILL BE FOR CUSTOMIZING THE APPEARANCE OF THE GRAPH
         self.add("Modifiy") #THIS WILL BE FOR MODIFYING THE DATA 
 
+        self.inititalise_ui()
+        
+    def inititalise_ui(self):
+        
+        # add a scrollabe frame instance to each of the tabs
+        
+        self.graph_tab_frame = graph_tab_frame(parent = self.tab("Graph"), width = self.width, height = self.height)
+        # self.data_tab_frame = data_tab_frame(parent = self.tab("Data"), width = self.width, height = self.height)
+        # self.appearance_tab_frame = appearance_tab_frame(parent = self.tab("Appearance"), width = self.width, height = self.height)
+        # self.modify_tab_frame = modify_tab_frame(parent = self.tab("Modifiy"), width = self.width, height = self.height)
+        
         # add widgets on tabs
-        self.label = ctk.CTkLabel(master=self.tab("Graph"))
-        self.label.pack(padx=10, pady=10)
+        self.graph_tab_frame.pack(padx=0, pady=(0, 0), expand = True, fill = "both")
+        # self.data_tab_frame.pack(padx=10, pady=(0, 10), expand = True, fill = "both")
+        # self.appearance_tab_frame.pack(padx=10, pady=(0, 10), expand = True, fill = "both")
+        # self.modify_tab_frame.pack(padx=10, pady=(0, 10), expand = True, fill = "both")
 
 # CURRENTLY UNUSED
 # --------------------------------------------------------------- #
@@ -217,24 +382,6 @@ class left_frame(ctk.CTkFrame):
         
         self.main_tabview = main_tabview(parent = self, root=self.root, width = self.width, height = self.height)
         self.main_tabview.pack(pady=(0, 10), padx=(10, 10))
-
-# class y_frame(ctk.CTkScrollableFrame):
-#     def __init__(self, parent, width, height):
-#         self.width = width
-#         self.height = height
-#         super().__init__(parent,
-#                         width=self.width,
-#                         height=self.height,
-#                         fg_color=secondary,
-#                         corner_radius = 10,
-#                         scrollbar_button_color=accent1,
-#                         scrollbar_button_hover_color=accent1_dark,)
-#         self.pack_propagate(False)
-#         #self.grid_propagate(False)
-#         self.initialise_ui()
-        
-#     def initialise_ui(self):
-#         pass
 
 class data_tabview(ctk.CTkTabview):
     def __init__(self, parent, width, height):
@@ -317,7 +464,6 @@ class main_buttons_frame(ctk.CTkFrame):
     def __init__(self, parent, root, width, height):
         self.width = width
         self.height = height
-        print(self.width, self.height)
         super().__init__(parent, 
                         width=(self.width),
                         height=(self.height),
@@ -336,7 +482,6 @@ class main_buttons_frame(ctk.CTkFrame):
         
     def initialise_ui(self):
         
-        print(self.width, self.height)
         self.main_button = ctk.CTkButton(master=self,
                                     #width = self.width,
                                     #height = self.height,
@@ -583,8 +728,8 @@ class terminal_frame(ctk.CTkFrame):
                                     state="normal",
                                     font=("Consolas", round(width/128)),
                                     text_color=(accent1, '#FFFFFF'),
-                                    scrollbar_button_color=accent1,
-                                    scrollbar_button_hover_color=accent1_dark,
+                                    scrollbar_button_color=(accent1, primary),
+                                    scrollbar_button_hover_color=(accent1_light, primary_dark),
                                     fg_color=secondary,
                                     border_color=(accent1, accent1),
                                     border_width=0,
@@ -739,7 +884,11 @@ class root(tk.Tk):
             
             self.run_tool(self.filename)
             
-    # MAIN RUNNING METHOD
+            #switch tab to table tab
+            self.right_frame.top_right_frame.data_tabview.set("Table")
+    
+    
+    # ---- MAIN RUNNING METHOD --------------------------------------------------------------- #
     def run_tool(self, filename):
         print("guh")
         print(filename)
@@ -806,9 +955,6 @@ class root(tk.Tk):
                     self.right_frame.top_right_frame.data_tabview.table.delete_column()
         
         self.right_frame.top_right_frame.data_tabview.table.update_values(self.table_data)
-        
-        #switch tab to table tab
-        self.right_frame.top_right_frame.data_tabview.set("Table")
         
     def close_file(self):
         
