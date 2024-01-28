@@ -115,9 +115,10 @@ def darken_color(hex_color, factor=0.25):
 #         pass
 
 class new_figure_popup(ctk.CTkToplevel):
-    def __init__(self, parent):
+    def __init__(self, parent, root):
         super().__init__(parent)
         self.geometry('360x640')
+        self.root = root
         self.initialise_ui()
         
     def initialise_ui(self):
@@ -135,16 +136,23 @@ class new_figure_popup(ctk.CTkToplevel):
         self.background.grid_propagate(False)
         self.background.pack(padx=0, pady=0)
         
-        self.exit_label = ctk.CTkButton(master=self.background,
+        self.plot_button = ctk.CTkButton(master=self.background,
                                         text="Plot",
                                         fg_color=primary,
                                         text_color=accent1,
-                                        font=("Arial", 20))
-        self.exit_label.pack(pady=20, padx=20)
+                                        font=("Arial", 20),
+                                        command=lambda: self.add_fig_callback(f"plot {fig_counter}"))
+        self.plot_button.pack(pady=20, padx=20)
+        
+    def add_fig_callback(self, fig_name):
+        self.root.update_current_figs(fig_name)
+        global fig_counter
+        fig_counter+=1
+        self.destroy()
         
 
 class current_figure_frame(ctk.CTkFrame):
-    def __init__(self, parent, width, height):
+    def __init__(self, parent, root, width, height):
         self.width = width / 2
         self.height = height / 30
         super().__init__(parent,
@@ -153,6 +161,10 @@ class current_figure_frame(ctk.CTkFrame):
                         fg_color=secondary,
                         #fg_color="#FF0000",
                         corner_radius = 10)
+        self.root = root
+        
+        global fig_counter
+        fig_counter=1
         
         self.toplevel_window = None
         
@@ -171,12 +183,11 @@ class current_figure_frame(ctk.CTkFrame):
         self.initialise_ui()
     
     def initialise_ui(self):
-        print(f"fjnaujnfeije{self.width, self.height}")
         
         self.current_figure_dropdown = ctk.CTkOptionMenu(master=self,
                                                         width=self.width,
                                                         height=self.height,
-                                                        values=["Option 1", "Option 2", "Option 42 long long long..."],
+                                                        values=self.root.current_figures,
                                                         fg_color=(accent1, primary),
                                                         button_color=(accent1, primary),
                                                         button_hover_color=(accent1_light, accent2),
@@ -187,11 +198,13 @@ class current_figure_frame(ctk.CTkFrame):
                                                         font=("Arial", 14))
         self.current_figure_dropdown.grid(row=0, column=0, padx=(0, 5), pady=(0, 0))
         
-        CTkScrollableDropdown(self.current_figure_dropdown,
-                            values=["Option 1", "Option 2", "Option 42 long long long...", "another one weeeeeeee", "another"],
+        print(self.root.current_figures)
+        
+        self.current_figure_dropdown_test = CTkScrollableDropdown(self.current_figure_dropdown,
+                            values=self.root.current_figures,
                             fg_color=(primary, primary),
-                            #hover_color=(secondary_dark, secondary_light), #! not sure why this doesnt work
-                            hover_color=('#ff0000'),
+                            hover_color=(secondary_dark, secondary_light),
+                            #hover_color=('#ff0000'),
                             frame_corner_radius=15,
                             frame_border_width=0,
                             button_color=(secondary, secondary),
@@ -222,18 +235,22 @@ class current_figure_frame(ctk.CTkFrame):
                                                 corner_radius=10,
                                                 text='x',
                                                 text_color=(accent1, '#FFFFFF'),
-                                                font=("Roboto", 20))
+                                                font=("Roboto", 20),
+                                                command=self.debug)
         self.remove_figure_button.grid(row=0, column=2, padx=(0, 0), pady=(0, 0))
         
     def add_figure_callback(self):
         
         if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
-                self.toplevel_window = new_figure_popup(self)  # create window if its None or destroyed
+                self.toplevel_window = new_figure_popup(self, root = self.root)  # create window if its None or destroyed
         else:
             self.toplevel_window.focus()
+            
+    def debug(self):
+        print(self.root.current_figures)
 
 class graph_tab_frame(ctk.CTkScrollableFrame):
-    def __init__(self, parent, width, height):
+    def __init__(self, parent, root, width, height):
         self.width = width
         self.height = height
         super().__init__(parent,
@@ -244,6 +261,7 @@ class graph_tab_frame(ctk.CTkScrollableFrame):
                         corner_radius = 10,
                         scrollbar_button_color=(accent1, primary),
                         scrollbar_button_hover_color=(accent1_light, primary_dark),)
+        self.root = root
         #self.pack_propagate(False)
         #self.grid_propagate(False)
         self.initialise_ui()
@@ -262,7 +280,7 @@ class graph_tab_frame(ctk.CTkScrollableFrame):
                                         anchor="w")
         self.editing_label.pack(padx=(22, 30), pady=(10, 0))
         
-        self.current_figure_frame = current_figure_frame(parent = self, width = self.width, height = self.height)
+        self.current_figure_frame = current_figure_frame(parent = self, root = self.root, width = self.width, height = self.height)
         self.current_figure_frame.pack(padx=(30, 30), pady=(5, 0), expand = True, fill = "both")
 
 class main_tabview(ctk.CTkTabview):
@@ -297,7 +315,7 @@ class main_tabview(ctk.CTkTabview):
         
         # add a scrollabe frame instance to each of the tabs
         
-        self.graph_tab_frame = graph_tab_frame(parent = self.tab("Graph"), width = self.width, height = self.height)
+        self.graph_tab_frame = graph_tab_frame(parent = self.tab("Graph"), root = self.root, width = self.width, height = self.height)
         # self.data_tab_frame = data_tab_frame(parent = self.tab("Data"), width = self.width, height = self.height)
         # self.appearance_tab_frame = appearance_tab_frame(parent = self.tab("Appearance"), width = self.width, height = self.height)
         # self.modify_tab_frame = modify_tab_frame(parent = self.tab("Modifiy"), width = self.width, height = self.height)
@@ -840,6 +858,9 @@ class root(tk.Tk):
         self.geometry(f'{self.width}x{self.height}+50+50')
         #self.iconbitmap('classes/empty.ico') #change icon
         #ctk.set_appearance_mode("Light")
+        
+        #create some lists
+        self.current_figures = []
 
         self.initialise_ui()
 
@@ -897,6 +918,10 @@ class root(tk.Tk):
         
         self.raw_x_data = [] #will be changed when user selects axis data
         self.raw_y_data = []
+        self.raw_z_data = []
+        
+        self.raw_data = []
+        
         self.table_data = []
         self.graph_data = []
         
@@ -909,17 +934,21 @@ class root(tk.Tk):
             # self.x_label = self.headers[0]
             # self.y_label = self.headers[1]
             for row in self.csvreader:
-                self.raw_x_data.append(row[0])
-                self.raw_y_data.append(row[1])
-        print(self.raw_x_data, self.raw_y_data)
+                # self.raw_x_data.append(row[0])
+                # self.raw_y_data.append(row[1])
+                self.raw_data.append(row)
+        print(self.raw_data)
         
         #split data into pairs of x and y values - e.g. [[x1, y1], [x2, y2], [x3, y3]]
-        self.table_data = list(zip(self.raw_x_data, self.raw_y_data))
-        print(self.table_data)
+        #self.table_data = list(zip(self.raw_x_data, self.raw_y_data, self.raw_z_data))
+        #print(self.table_data)
+        
+        self.column_data = list(map(list, zip(*self.raw_data)))
+        print(self.column_data)
         
         # calculate new number of rows and columns for table
-        self.new_rows = len(self.table_data)
-        self.new_columns = len(self.table_data[0])
+        self.new_rows = len(self.raw_data)
+        self.new_columns = len(self.raw_data[0])
         
         # check if table already exists
         if self.right_frame.top_right_frame.data_tabview.table is not None:
@@ -935,7 +964,7 @@ class root(tk.Tk):
             elif self.old_rows < self.new_rows:
                 #if new rows are greater than old rows, add new rows
                 for i in range(self.new_rows - self.old_rows):
-                    self.right_frame.top_right_frame.data_tabview.table.add_row(list(self.raw_y_data[i]))
+                    self.right_frame.top_right_frame.data_tabview.table.add_row(list(self.raw_data[i]))
             elif self.old_rows > self.new_rows:
                 #if new rows are less than old rows, remove rows
                 for i in range(self.old_rows - self.new_rows):
@@ -948,13 +977,15 @@ class root(tk.Tk):
             elif self.old_columns < self.new_columns:
                 #if new columns are greater than old columns, add new columns
                 for i in range(self.new_columns - self.old_columns):
-                    self.right_frame.top_right_frame.data_tabview.table.add_column((self.raw_x_data[i]))
+                    self.right_frame.top_right_frame.data_tabview.table.add_column((self.raw_data[i]))
             elif self.old_columns > self.new_columns:
                 #if new columns are less than old columns, remove columns
                 for i in range(self.old_columns - self.new_columns):
                     self.right_frame.top_right_frame.data_tabview.table.delete_column()
         
-        self.right_frame.top_right_frame.data_tabview.table.update_values(self.table_data)
+        self.right_frame.top_right_frame.data_tabview.table.update_values(self.raw_data)
+        
+        # graph data
         
     def close_file(self):
         
@@ -1022,6 +1053,12 @@ class root(tk.Tk):
                 self.right_frame.bottom_right_frame.terminal_frame.terminal.configure(state = "normal")
                 self.right_frame.bottom_right_frame.terminal_frame.terminal.insert("end", f"{formatted_date_if_enabled} > {text}\n\n----------\n\n")
                 self.right_frame.bottom_right_frame.terminal_frame.terminal.configure(state = "disabled")
+                
+    def update_current_figs(self, fig):
+        self.current_figures.append(fig)
+        self.left_frame.main_tabview.graph_tab_frame.current_figure_frame.current_figure_dropdown.configure(values=self.current_figures)
+        self.left_frame.main_tabview.graph_tab_frame.current_figure_frame.current_figure_dropdown_test.configure(values=self.current_figures)
+        print(self.current_figures)
 
 if __name__ == "__main__":
     
