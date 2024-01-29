@@ -158,7 +158,7 @@ class current_figure_frame(ctk.CTkFrame):
         super().__init__(parent,
                         width=self.width,
                         height=self.height,
-                        fg_color=secondary,
+                        fg_color=primary,
                         #fg_color="#FF0000",
                         corner_radius = 10)
         self.root = root
@@ -175,10 +175,10 @@ class current_figure_frame(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         
         self.grid_rowconfigure(1, weight=1)
-        self.grid_columnconfigure(1, weight=5)
+        self.grid_columnconfigure(1, weight=1000000) # this is a hacky way to make the dropdown fill the space
         
         self.grid_rowconfigure(2, weight=1)
-        self.grid_columnconfigure(2, weight=5)
+        self.grid_columnconfigure(2, weight=1000000) # idk what is going on really - it shouldnt need to be this big, and it should be the other way round
         
         self.initialise_ui()
     
@@ -188,10 +188,10 @@ class current_figure_frame(ctk.CTkFrame):
                                                         width=self.width,
                                                         height=self.height,
                                                         values=self.root.current_figures,
-                                                        fg_color=(accent1, primary),
-                                                        button_color=(accent1, primary),
+                                                        fg_color=(accent1, secondary),
+                                                        button_color=(accent1, secondary),
                                                         button_hover_color=(accent1_light, accent2),
-                                                        dropdown_fg_color=(accent1, primary),
+                                                        dropdown_fg_color=(accent1, secondary),
                                                         dropdown_hover_color=(accent1_light, accent2), 
                                                         dropdown_text_color="#FFFFFF",
                                                         corner_radius=10,
@@ -201,21 +201,23 @@ class current_figure_frame(ctk.CTkFrame):
         print(self.root.current_figures)
         
         self.current_figure_dropdown_test = CTkScrollableDropdown(self.current_figure_dropdown,
-                            values=self.root.current_figures,
-                            fg_color=(primary, primary),
-                            hover_color=(secondary_dark, secondary_light),
-                            #hover_color=('#ff0000'),
-                            frame_corner_radius=15,
-                            frame_border_width=0,
-                            button_color=(secondary, secondary),
-                            scrollbar_button_color=(accent1, secondary),
-                            resize=True)
+                                                                    values=self.root.current_figures,
+                                                                    fg_color=(primary, secondary),
+                                                                    hover_color=(secondary_dark, primary_light),
+                                                                    #hover_color=('#ff0000'),
+                                                                    frame_corner_radius=15,
+                                                                    frame_border_width=2,
+                                                                    frame_border_color=(accent1, primary),
+                                                                    button_color=(secondary, primary),
+                                                                    scrollbar_button_color=(accent1, primary),
+                                                                    resize=True)
+                                                                    #command=self.root.change_plot)
         
         self.add_figure_button = ctk.CTkButton(master=self,
                                                 width=self.width,
                                                 height=self.height,
-                                                fg_color=(primary, primary),
-                                                hover_color=(primary_dark, primary_dark),
+                                                fg_color=(primary, secondary),
+                                                hover_color=(primary_dark, secondary_dark),
                                                 border_width=0,
                                                 border_color=(accent1, spare),
                                                 corner_radius=10,
@@ -228,8 +230,8 @@ class current_figure_frame(ctk.CTkFrame):
         self.remove_figure_button = ctk.CTkButton(master=self,
                                                 width=self.width,
                                                 height=self.height,
-                                                fg_color=(primary, primary),
-                                                hover_color=(primary_dark, primary_dark),
+                                                fg_color=(primary, secondary),
+                                                hover_color=(primary_dark, secondary_dark),
                                                 border_width=0,
                                                 border_color=(accent1, spare),
                                                 corner_radius=10,
@@ -267,21 +269,7 @@ class graph_tab_frame(ctk.CTkScrollableFrame):
         self.initialise_ui()
         
     def initialise_ui(self):
-        
-        self.editing_label = ctk.CTkLabel(master=self,
-                                        width=self.width,
-                                        height=self.height/40,
-                                        fg_color=secondary,
-                                        #fg_color="#FF0000",
-                                        text_color=(accent1, '#FFFFFF'),
-                                        corner_radius=10,
-                                        font=("Arial", 14),
-                                        text="Editing: ",
-                                        anchor="w")
-        self.editing_label.pack(padx=(22, 30), pady=(10, 0))
-        
-        self.current_figure_frame = current_figure_frame(parent = self, root = self.root, width = self.width, height = self.height)
-        self.current_figure_frame.pack(padx=(30, 30), pady=(5, 0), expand = True, fill = "both")
+        pass
 
 class main_tabview(ctk.CTkTabview):
     def __init__(self, root, parent, width, height):
@@ -397,6 +385,21 @@ class left_frame(ctk.CTkFrame):
         self.initialise_ui()
 
     def initialise_ui(self):
+        
+        self.editing_label = ctk.CTkLabel(master=self,
+                                        width=self.width,
+                                        height=self.height/40,
+                                        fg_color=secondary,
+                                        #fg_color="#FF0000",
+                                        text_color=(accent1, '#FFFFFF'),
+                                        corner_radius=10,
+                                        font=("Arial", 14),
+                                        text="Editing: ",
+                                        anchor="w")
+        self.editing_label.pack(padx=(10, 10), pady=(20, 0))
+        
+        self.current_figure_frame = current_figure_frame(parent = self, root = self.root, width = self.width, height = self.height)
+        self.current_figure_frame.pack(padx=(10, 10), pady=(5, 0), expand = True, fill = "both")
         
         self.main_tabview = main_tabview(parent = self, root=self.root, width = self.width, height = self.height)
         self.main_tabview.pack(pady=(0, 10), padx=(10, 10))
@@ -1056,9 +1059,12 @@ class root(tk.Tk):
                 
     def update_current_figs(self, fig):
         self.current_figures.append(fig)
-        self.left_frame.main_tabview.graph_tab_frame.current_figure_frame.current_figure_dropdown.configure(values=self.current_figures)
-        self.left_frame.main_tabview.graph_tab_frame.current_figure_frame.current_figure_dropdown_test.configure(values=self.current_figures)
+        self.left_frame.current_figure_frame.current_figure_dropdown.configure(values=self.current_figures)
+        self.left_frame.current_figure_frame.current_figure_dropdown_test.configure(values=self.current_figures)
         print(self.current_figures)
+        
+    def change_plot(self):
+        pass
 
 if __name__ == "__main__":
     
