@@ -125,7 +125,6 @@ class new_figure_popup(ctk.CTkToplevel):
         self.title("Exit")
         self.resizable(False, False) # disable resizing
         self.focus_force() # make window focused
-        self.grab_set() # make window modal
         
         self.background = ctk.CTkFrame(master=self,
                                         width=360,
@@ -141,8 +140,11 @@ class new_figure_popup(ctk.CTkToplevel):
                                         fg_color=primary,
                                         text_color=accent1,
                                         font=("Arial", 20),
-                                        command=lambda: self.add_fig_callback(f"plot {fig_counter}"))
+                                        command=lambda: self.add_fig_callback(f"plot-{fig_counter}"))
         self.plot_button.pack(pady=20, padx=20)
+        
+        self.update()
+        self.grab_set() # make window modal
         
     def add_fig_callback(self, fig_name):
         self.root.update_current_figs(fig_name)
@@ -195,7 +197,8 @@ class current_figure_frame(ctk.CTkFrame):
                                                         dropdown_hover_color=(accent1_light, accent2), 
                                                         dropdown_text_color="#FFFFFF",
                                                         corner_radius=10,
-                                                        font=("Arial", 14))
+                                                        font=("Arial", 14),
+                                                        command=self.root.change_plot)
         self.current_figure_dropdown.grid(row=0, column=0, padx=(0, 5), pady=(0, 0))
         
         print(self.root.current_figures)
@@ -904,9 +907,8 @@ class root(tk.Tk):
             self.file_active = True
             self.refresh_ui()
             
-            self.right_frame.top_right_frame.data_tabview.table.pack(padx = (0, 0), pady = (0, 00))
-            
             self.run_tool(self.filename)
+            self.right_frame.top_right_frame.data_tabview.table.pack(padx = (0, 0), pady = (0, 00))
             
             #switch tab to table tab
             self.right_frame.top_right_frame.data_tabview.set("Table")
@@ -927,6 +929,7 @@ class root(tk.Tk):
         
         self.table_data = []
         self.graph_data = []
+        #self.column_data = []
         
         # table data
         # translate csv data into a format that can be used by the table
@@ -949,42 +952,52 @@ class root(tk.Tk):
         self.column_data = list(map(list, zip(*self.raw_data)))
         print(self.column_data)
         
+        self.right_frame.top_right_frame.data_tabview.table = CTkTable(master = self.right_frame.top_right_frame.data_tabview.xy_table_frame,
+                                                                        font=("Arial", width/75),
+                                                                        values = self.raw_data,
+                                                                        width = width/14,
+                                                                        height = height/14,
+                                                                        colors=(primary, primary_dark),
+                                                                        border_width=0,
+                                                                        border_color=(contrast_colour),
+                                                                        padx=0,
+                                                                        pady=0)
         # calculate new number of rows and columns for table
-        self.new_rows = len(self.raw_data)
-        self.new_columns = len(self.raw_data[0])
+        # self.new_rows = len(self.raw_data)
+        # self.new_columns = len(self.raw_data[0])
         
         # check if table already exists
-        if self.right_frame.top_right_frame.data_tabview.table is not None:
-            # if it does, get its current number of rows and columns
-            self.old_rows = self.right_frame.top_right_frame.data_tabview.table.rows
-            self.old_columns = self.right_frame.top_right_frame.data_tabview.table.columns
+        # if self.right_frame.top_right_frame.data_tabview.table is not None:
+        #     # if it does, get its current number of rows and columns
+        #     self.old_rows = self.right_frame.top_right_frame.data_tabview.table.rows
+        #     self.old_columns = self.right_frame.top_right_frame.data_tabview.table.columns
             
-            print(self.old_rows, self.old_columns, self.new_rows, self.new_columns)
+        #     print(self.old_rows, self.old_columns, self.new_rows, self.new_columns)
             
-            #compare old and new number of rows
-            if self.old_rows == self.new_rows:
-                pass
-            elif self.old_rows < self.new_rows:
-                #if new rows are greater than old rows, add new rows
-                for i in range(self.new_rows - self.old_rows):
-                    self.right_frame.top_right_frame.data_tabview.table.add_row(list(self.raw_data[i]))
-            elif self.old_rows > self.new_rows:
-                #if new rows are less than old rows, remove rows
-                for i in range(self.old_rows - self.new_rows):
-                    print('if this runs something is horribly wrong')
-                    self.right_frame.top_right_frame.data_tabview.table.delete_row()
+        #     #compare old and new number of rows
+        #     if self.old_rows == self.new_rows:
+        #         pass
+        #     elif self.old_rows < self.new_rows:
+        #         #if new rows are greater than old rows, add new rows
+        #         for i in range(self.new_rows - self.old_rows):
+        #             self.right_frame.top_right_frame.data_tabview.table.add_row(list(self.raw_data[i]))
+        #     elif self.old_rows > self.new_rows:
+        #         #if new rows are less than old rows, remove rows
+        #         for i in range(self.old_rows - self.new_rows):
+        #             print(i)
+        #             self.right_frame.top_right_frame.data_tabview.table.delete_row()
                 
-            #compare old and new number of columns
-            if self.old_columns == self.new_columns:
-                pass
-            elif self.old_columns < self.new_columns:
-                #if new columns are greater than old columns, add new columns
-                for i in range(self.new_columns - self.old_columns):
-                    self.right_frame.top_right_frame.data_tabview.table.add_column((self.raw_data[i]))
-            elif self.old_columns > self.new_columns:
-                #if new columns are less than old columns, remove columns
-                for i in range(self.old_columns - self.new_columns):
-                    self.right_frame.top_right_frame.data_tabview.table.delete_column()
+        #     #compare old and new number of columns
+        #     if self.old_columns == self.new_columns:
+        #         pass
+        #     elif self.old_columns < self.new_columns:
+        #         #if new columns are greater than old columns, add new columns
+        #         for i in range(self.new_columns - self.old_columns):
+        #             self.right_frame.top_right_frame.data_tabview.table.add_column((self.raw_data[i]))
+        #     elif self.old_columns > self.new_columns:
+        #         #if new columns are less than old columns, remove columns
+        #         for i in range(self.old_columns - self.new_columns):
+        #             self.right_frame.top_right_frame.data_tabview.table.delete_column()
         
         self.right_frame.top_right_frame.data_tabview.table.update_values(self.raw_data)
         
@@ -1064,7 +1077,9 @@ class root(tk.Tk):
         print(self.current_figures)
         
     def change_plot(self):
-        pass
+        print("debug")
+        #self.plot_type = self.left_frame.current_figure_frame. current_figure_dropdown.get()
+        #print(self.plot_type)
 
 if __name__ == "__main__":
     
