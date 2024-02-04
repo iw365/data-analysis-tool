@@ -213,8 +213,8 @@ class current_figure_frame(ctk.CTkFrame):
                                                                     frame_border_color=(accent1, primary),
                                                                     button_color=(secondary, primary),
                                                                     scrollbar_button_color=(accent1, primary),
-                                                                    resize=True)
-                                                                    #command=self.root.change_plot)
+                                                                    resize=True,
+                                                                    command=self.root.change_plot)
         
         self.add_figure_button = ctk.CTkButton(master=self,
                                                 width=self.width,
@@ -1076,8 +1076,8 @@ class root(tk.Tk):
         self.left_frame.current_figure_frame.current_figure_dropdown_test.configure(values=self.current_figures)
         print(self.current_figures)
         
-    def change_plot(self):
-        print("debug")
+    def change_plot(self, _):
+        print(f"debug{_}")
         #self.plot_type = self.left_frame.current_figure_frame. current_figure_dropdown.get()
         #print(self.plot_type)
 
