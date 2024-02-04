@@ -15,6 +15,7 @@
 
 import os
 import sys
+import platform
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.join(script_dir, "root")
@@ -28,6 +29,7 @@ from CTkMenuBar import *
 from CTkToolTip import *
 from CTkTable import *
 from PIL import Image
+import pywinstyles
 
 from modules.CTkXYFrame import ctk_xyframe
 from modules.CTkScrollableDropdown import *
@@ -272,7 +274,18 @@ class graph_tab_frame(ctk.CTkScrollableFrame):
         self.initialise_ui()
         
     def initialise_ui(self):
-        pass
+        
+        self.test_label = ctk.CTkLabel(master=self,
+                                        width=self.width,
+                                        height=self.height/40,
+                                        fg_color=secondary,
+                                        #fg_color="#FF0000",
+                                        text_color=(accent1, '#FFFFFF'),
+                                        corner_radius=10,
+                                        font=("Arial", 14),
+                                        text="TEST",
+                                        anchor="w")
+        self.test_label.pack(padx=(10, 10), pady=(20, 0))
 
 class main_tabview(ctk.CTkTabview):
     def __init__(self, root, parent, width, height):
@@ -860,6 +873,10 @@ class root(tk.Tk):
         self.file_active = False
         super().__init__()
         self.title("Data Analysis Tool")
+        self.resizable(False, False) # disable resizing
+        if platform.system() == "Windows":
+            #pywinstyles.apply_style(self, "mica")
+            pywinstyles.change_header_color(self, primary)
         
         self.geometry(f'{self.width}x{self.height}+50+50')
         #self.iconbitmap('classes/empty.ico') #change icon
@@ -1076,10 +1093,27 @@ class root(tk.Tk):
         self.left_frame.current_figure_frame.current_figure_dropdown_test.configure(values=self.current_figures)
         print(self.current_figures)
         
-    def change_plot(self, _):
-        print(f"debug{_}")
-        #self.plot_type = self.left_frame.current_figure_frame. current_figure_dropdown.get()
-        #print(self.plot_type)
+    def change_plot(self, plot):
+        print(f"debug: {plot}")
+        
+        #split the string at the first hyphen and take the first part
+        self.plot_type = plot.split("-", 1)[0]
+        print(self.plot_type)
+        
+        self.show_fig_options(self.plot_type)
+        
+    def show_fig_options(self, fig):
+        
+        # GRAPH TAB
+        
+        # clear the frame
+        for widget in self.left_frame.main_tabview.graph_tab_frame.winfo_children():
+            widget.pack_forget()
+        
+        match fig:
+            case "plot":
+                pass
+                #self.left_frame.main_tabview.graph_tab_frame.plot_options_frame = plot_options_frame(parent = self.left_frame.main_tabview.graph_tab_frame, root = self, width = self.width, height = self.height)
 
 if __name__ == "__main__":
     
