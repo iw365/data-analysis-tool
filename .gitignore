@@ -126,3 +126,4 @@ dmypy.json
 # others
 
 src/exports/
+fig_data.json

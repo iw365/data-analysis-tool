@@ -29,10 +29,15 @@ from CTkMenuBar import *
 from CTkToolTip import *
 from CTkTable import *
 from PIL import Image
-import pywinstyles
+try:
+    import pywinstyles
+#if import error
+except ImportError:
+    pass
 
 from modules.CTkXYFrame import ctk_xyframe
 from modules.CTkScrollableDropdown import *
+from tabview_options import x_axis_selector_frame, y_axis_selector_frame
 
 import matplotlib
 from matplotlib.figure import Figure
@@ -43,7 +48,7 @@ import json
 import datetime as dt
 import csv
 
-from settings import active_light_theme, active_dark_theme, active_theme_type
+from settings import active_light_theme, active_dark_theme, active_theme_type, primary, secondary, accent1, accent2, spare, primary_light, secondary_light, accent1_light, accent2_light, primary_dark, secondary_dark, accent1_dark, accent2_dark
 from launcher_functions import *
 
 
@@ -62,25 +67,6 @@ height = int(settings_data["window_height"])
 #close settings file
 file.close()
 
-
-
-
-# -------- COLOUR SCHEME FUNCTIONS -------- #
-
-def hex_to_rgb(hex):
-    return tuple(int(hex.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
-
-rgb_to_hex = lambda rgb: '#{0:02x}{1:02x}{2:02x}'.format(rgb[0], rgb[1], rgb[2])
-
-def lighten_color(hex_color, factor=0.25):
-    rgb_color = hex_to_rgb(hex_color)
-    lighter_rgb = tuple(int((255 - val) * factor + val) for val in rgb_color)
-    return rgb_to_hex(lighter_rgb)
-
-def darken_color(hex_color, factor=0.25):
-    rgb_color = hex_to_rgb(hex_color)
-    darker_rgb = tuple(int(val * (1 - factor)) for val in rgb_color)
-    return rgb_to_hex(darker_rgb)
 
 
 
@@ -142,18 +128,11 @@ class new_figure_popup(ctk.CTkToplevel):
                                         fg_color=primary,
                                         text_color=accent1,
                                         font=("Arial", 20),
-                                        command=lambda: self.add_fig_callback(f"plot-{fig_counter}"))
+                                        command=lambda: self.root.add_fig_callback(f"plot-{fig_counter}"))
         self.plot_button.pack(pady=20, padx=20)
         
         self.update()
         self.grab_set() # make window modal
-        
-    def add_fig_callback(self, fig_name):
-        self.root.update_current_figs(fig_name)
-        global fig_counter
-        fig_counter+=1
-        self.destroy()
-        
 
 class current_figure_frame(ctk.CTkFrame):
     def __init__(self, parent, root, width, height):
@@ -179,10 +158,10 @@ class current_figure_frame(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         
         self.grid_rowconfigure(1, weight=1)
-        self.grid_columnconfigure(1, weight=1000000) # this is a hacky way to make the dropdown fill the space
+        self.grid_columnconfigure(1, weight=2000000) # this is a hacky way to make the dropdown fill the space
         
         self.grid_rowconfigure(2, weight=1)
-        self.grid_columnconfigure(2, weight=1000000) # idk what is going on really - it shouldnt need to be this big, and it should be the other way round
+        self.grid_columnconfigure(2, weight=2000000) # idk what is going on really - it shouldnt need to be this big, and it should be the other way round
         
         self.initialise_ui()
     
@@ -200,7 +179,8 @@ class current_figure_frame(ctk.CTkFrame):
                                                         dropdown_text_color="#FFFFFF",
                                                         corner_radius=10,
                                                         font=("Arial", 14),
-                                                        command=self.root.change_plot)
+                                                        state='disabled',
+                                                        command=self.root.change_fig)
         self.current_figure_dropdown.grid(row=0, column=0, padx=(0, 5), pady=(0, 0))
         
         print(self.root.current_figures)
@@ -216,7 +196,8 @@ class current_figure_frame(ctk.CTkFrame):
                                                                     button_color=(secondary, primary),
                                                                     scrollbar_button_color=(accent1, primary),
                                                                     resize=True,
-                                                                    command=self.root.change_plot)
+                                                                    state='disabled',
+                                                                    command=self.root.change_fig)
         
         self.add_figure_button = ctk.CTkButton(master=self,
                                                 width=self.width,
@@ -243,7 +224,7 @@ class current_figure_frame(ctk.CTkFrame):
                                                 text='x',
                                                 text_color=(accent1, '#FFFFFF'),
                                                 font=("Roboto", 20),
-                                                command=self.debug)
+                                                command=self.root.remove_fig)
         self.remove_figure_button.grid(row=0, column=2, padx=(0, 0), pady=(0, 0))
         
     def add_figure_callback(self):
@@ -252,9 +233,6 @@ class current_figure_frame(ctk.CTkFrame):
                 self.toplevel_window = new_figure_popup(self, root = self.root)  # create window if its None or destroyed
         else:
             self.toplevel_window.focus()
-            
-    def debug(self):
-        print(self.root.current_figures)
 
 class graph_tab_frame(ctk.CTkScrollableFrame):
     def __init__(self, parent, root, width, height):
@@ -883,7 +861,7 @@ class root(tk.Tk):
         #ctk.set_appearance_mode("Light")
         
         #create some lists
-        self.current_figures = []
+        self.current_figures = ['No figures created']
 
         self.initialise_ui()
 
@@ -951,7 +929,7 @@ class root(tk.Tk):
         # table data
         # translate csv data into a format that can be used by the table
         
-        with open(filename, 'r') as csvfile:
+        with open(filename, 'r', encoding='utf-8-sig') as csvfile:
             self.csvreader = csv.reader(csvfile)
             # self.headers = next(self.csvreader)
             # self.x_label = self.headers[0]
@@ -979,46 +957,28 @@ class root(tk.Tk):
                                                                         border_color=(contrast_colour),
                                                                         padx=0,
                                                                         pady=0)
-        # calculate new number of rows and columns for table
-        # self.new_rows = len(self.raw_data)
-        # self.new_columns = len(self.raw_data[0])
-        
-        # check if table already exists
-        # if self.right_frame.top_right_frame.data_tabview.table is not None:
-        #     # if it does, get its current number of rows and columns
-        #     self.old_rows = self.right_frame.top_right_frame.data_tabview.table.rows
-        #     self.old_columns = self.right_frame.top_right_frame.data_tabview.table.columns
-            
-        #     print(self.old_rows, self.old_columns, self.new_rows, self.new_columns)
-            
-        #     #compare old and new number of rows
-        #     if self.old_rows == self.new_rows:
-        #         pass
-        #     elif self.old_rows < self.new_rows:
-        #         #if new rows are greater than old rows, add new rows
-        #         for i in range(self.new_rows - self.old_rows):
-        #             self.right_frame.top_right_frame.data_tabview.table.add_row(list(self.raw_data[i]))
-        #     elif self.old_rows > self.new_rows:
-        #         #if new rows are less than old rows, remove rows
-        #         for i in range(self.old_rows - self.new_rows):
-        #             print(i)
-        #             self.right_frame.top_right_frame.data_tabview.table.delete_row()
-                
-        #     #compare old and new number of columns
-        #     if self.old_columns == self.new_columns:
-        #         pass
-        #     elif self.old_columns < self.new_columns:
-        #         #if new columns are greater than old columns, add new columns
-        #         for i in range(self.new_columns - self.old_columns):
-        #             self.right_frame.top_right_frame.data_tabview.table.add_column((self.raw_data[i]))
-        #     elif self.old_columns > self.new_columns:
-        #         #if new columns are less than old columns, remove columns
-        #         for i in range(self.old_columns - self.new_columns):
-        #             self.right_frame.top_right_frame.data_tabview.table.delete_column()
-        
+
         self.right_frame.top_right_frame.data_tabview.table.update_values(self.raw_data)
         
-        # graph data
+        # graph stuff
+        
+        #make a list of all column headers
+        try:
+            self.column_headers = self.raw_data[0]
+            print(self.column_headers)
+            
+            self.fig_data = {}
+            
+            self.selected_figure = self.left_frame.current_figure_frame.current_figure_dropdown.get()
+            self.fig_data[self.selected_figure]['x_axis'] = str(self.left_frame.main_tabview.graph_tab_frame.x_axis_selector_frame.x_axis_selector_dropdown.get())
+            self.fig_data[self.selected_figure]['y_axis'] = str(self.left_frame.main_tabview.graph_tab_frame.y_axis_selector_frame.y_axis_selector_dropdown.get())
+            print(self.fig_data)
+            
+            self.json_data = json.dumps(self.fig_data)
+            with open('fig_data.json', 'w') as file:
+                file.write(self.json_data)
+        except AttributeError:
+            print("test")
         
     def close_file(self):
         
@@ -1052,6 +1012,77 @@ class root(tk.Tk):
             self.bottom.main_buttons_frame.close_file_button.grid_forget()
             self.bottom.main_buttons_frame.main_button.configure(text="upload file")
             
+    def change_fig(self, plot):
+        print(f"debug: {plot}")
+        self.left_frame.current_figure_frame.current_figure_dropdown.set(plot)
+        
+        #split the string at the first hyphen and take the first part
+        self.plot_type = plot.split("-", 1)[0]
+        print(self.plot_type)
+        
+        self.show_fig_options(self.plot_type)
+    
+    def add_fig_callback(self, fig_name):
+        
+        if self.current_figures[0] == 'No figures created':
+            self.current_figures.pop(0)
+            self.left_frame.current_figure_frame.current_figure_dropdown.configure(state='normal')
+            self.left_frame.current_figure_frame.current_figure_dropdown_test.configure(state='normal')
+        
+        self.current_figures.append(fig_name)
+        self.left_frame.current_figure_frame.current_figure_dropdown.configure(values=self.current_figures)
+        self.left_frame.current_figure_frame.current_figure_dropdown_test.configure(values=self.current_figures)
+        print(self.current_figures)
+        
+        global fig_counter
+        fig_counter+=1
+        self.left_frame.current_figure_frame.toplevel_window.destroy()
+        self.left_frame.current_figure_frame.current_figure_dropdown.set(fig_name)
+    
+    def remove_fig(self):
+        
+        self.current_figures.remove(self.left_frame.current_figure_frame.current_figure_dropdown.get())
+        
+        # set the dropdown to the figure before
+        try:
+            self.left_frame.current_figure_frame.current_figure_dropdown.set(self.current_figures[-1])
+        except IndexError:
+            try:
+                self.left_frame.current_figure_frame.current_figure_dropdown.set(self.current_figures[+1])
+            except IndexError:
+                self.current_figures.append('No figures created')
+                self.left_frame.current_figure_frame.current_figure_dropdown.set(self.current_figures[0])
+                self.left_frame.current_figure_frame.current_figure_dropdown.configure(state='disabled')
+                self.left_frame.current_figure_frame.current_figure_dropdown_test.configure(state='disabled')
+        
+        
+        self.left_frame.current_figure_frame.current_figure_dropdown.configure(values=self.current_figures)
+        self.left_frame.current_figure_frame.current_figure_dropdown_test.configure(values=self.current_figures)
+        
+        print(self.left_frame.current_figure_frame.current_figure_dropdown.get())
+        print(self.current_figures)
+        
+    def show_fig_options(self, fig):
+        
+        # clear the frame
+        for widget in self.left_frame.main_tabview.graph_tab_frame.winfo_children():
+            widget.pack_forget()
+        
+        match fig:
+            case "plot":
+                
+                # GRAPH TAB
+                
+                self.graph_tab = self.left_frame.main_tabview.graph_tab_frame
+                
+                self.graph_tab.x_axis_selector_frame = x_axis_selector_frame(parent = self.graph_tab, root = self, width = self.width, height = self.height)
+                self.graph_tab.x_axis_selector_frame.pack(padx=(0, 10), pady=(10, 10), expand = True, fill = "x")
+                self.graph_tab.x_axis_selector_frame.x_axis_selector_dropdown_test.configure(values = self.column_headers)
+                
+                self.graph_tab.y_axis_selector_frame = y_axis_selector_frame(parent = self.graph_tab, root = self, width = self.width, height = self.height)
+                self.graph_tab.y_axis_selector_frame.pack(padx=(0, 10), pady=(0, 10), expand = True, fill = "x")
+                self.graph_tab.y_axis_selector_frame.y_axis_selector_dropdown_test.configure(values = self.column_headers)
+                
     def exit_app_callback(self):
         #root.destroy()
         
@@ -1086,34 +1117,7 @@ class root(tk.Tk):
                 self.right_frame.bottom_right_frame.terminal_frame.terminal.configure(state = "normal")
                 self.right_frame.bottom_right_frame.terminal_frame.terminal.insert("end", f"{formatted_date_if_enabled} > {text}\n\n----------\n\n")
                 self.right_frame.bottom_right_frame.terminal_frame.terminal.configure(state = "disabled")
-                
-    def update_current_figs(self, fig):
-        self.current_figures.append(fig)
-        self.left_frame.current_figure_frame.current_figure_dropdown.configure(values=self.current_figures)
-        self.left_frame.current_figure_frame.current_figure_dropdown_test.configure(values=self.current_figures)
-        print(self.current_figures)
-        
-    def change_plot(self, plot):
-        print(f"debug: {plot}")
-        
-        #split the string at the first hyphen and take the first part
-        self.plot_type = plot.split("-", 1)[0]
-        print(self.plot_type)
-        
-        self.show_fig_options(self.plot_type)
-        
-    def show_fig_options(self, fig):
-        
-        # GRAPH TAB
-        
-        # clear the frame
-        for widget in self.left_frame.main_tabview.graph_tab_frame.winfo_children():
-            widget.pack_forget()
-        
-        match fig:
-            case "plot":
-                pass
-                #self.left_frame.main_tabview.graph_tab_frame.plot_options_frame = plot_options_frame(parent = self.left_frame.main_tabview.graph_tab_frame, root = self, width = self.width, height = self.height)
+
 
 if __name__ == "__main__":
     
@@ -1132,24 +1136,6 @@ if __name__ == "__main__":
             print('debug i hate this')
             ctk.set_appearance_mode("dark") # Modes: "System" (standard), "Dark", "Light"
             contrast_colour = "#FFFFFF"
-            
-
-    primary = theme['primary']
-    secondary = theme['secondary']
-    accent1 = theme['accent1']
-    accent2 = theme['accent2']
-    spare = theme['spare']
-    
-    primary_light = lighten_color(primary)
-    secondary_light = lighten_color(secondary)
-    accent1_light = lighten_color(accent1)
-    accent2_light = lighten_color(accent2)
-    print(primary, secondary, accent1, accent2, spare)
-
-    primary_dark = darken_color(primary)
-    secondary_dark = darken_color(secondary)
-    accent1_dark = darken_color(accent1)
-    accent2_dark = darken_color(accent2)
     
     root = root()
     root.protocol("WM_DELETE_WINDOW", root.exit_app_callback)
