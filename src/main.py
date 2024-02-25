@@ -908,6 +908,10 @@ class root(tk.Tk):
             self.run_tool(self.filename)
             self.right_frame.top_right_frame.data_tabview.table.pack(padx = (0, 0), pady = (0, 00))
             
+            #clear the fig_data json file
+            with open('fig_data.json', 'w') as file:
+                file.write("{}")
+            
             #switch tab to table tab
             self.right_frame.top_right_frame.data_tabview.set("Table")
     
@@ -968,7 +972,7 @@ class root(tk.Tk):
         #make a list of all column headers
         try:
             self.column_headers = self.raw_data[0]
-            print(self.column_headers)
+            print(f'column headers: {self.column_headers}')
             
             if self.left_frame.current_figure_frame.current_figure_dropdown.get() != "No figures created":
                 
@@ -1127,6 +1131,9 @@ class root(tk.Tk):
         match fig:
             case "plot":
                 
+                with open('fig_data.json', 'r') as file:
+                    self.fig_data = json.load(file)
+                
                 # GRAPH TAB
                 
                 self.graph_tab = self.left_frame.main_tabview.graph_tab_frame
@@ -1135,9 +1142,22 @@ class root(tk.Tk):
                 self.graph_tab.x_axis_selector_frame.pack(padx=(0, 10), pady=(10, 10), expand = True, fill = "x")
                 self.graph_tab.x_axis_selector_frame.x_axis_selector_dropdown_test.configure(values = self.column_headers)
                 
+                #set the dropdown to the value in the json file
+                try:
+                    self.graph_tab.x_axis_selector_frame.x_axis_selector_dropdown.set(self.fig_data[self.left_frame.current_figure_frame.current_figure_dropdown.get()]['x_axis'])
+                except KeyError:
+                    self.graph_tab.x_axis_selector_frame.x_axis_selector_dropdown.set("No data")
+                
+                
                 self.graph_tab.y_axis_selector_frame = y_axis_selector_frame(parent = self.graph_tab, root = self, width = self.width, height = self.height)
                 self.graph_tab.y_axis_selector_frame.pack(padx=(0, 10), pady=(0, 10), expand = True, fill = "x")
                 self.graph_tab.y_axis_selector_frame.y_axis_selector_dropdown_test.configure(values = self.column_headers)
+                
+                #set the dropdown to the value in the json file
+                try:
+                    self.graph_tab.y_axis_selector_frame.y_axis_selector_dropdown.set(self.fig_data[self.left_frame.current_figure_frame.current_figure_dropdown.get()]['y_axis'])
+                except KeyError:
+                    self.graph_tab.y_axis_selector_frame.y_axis_selector_dropdown.set("No data")
                 
     def exit_app_callback(self):
         #root.destroy()

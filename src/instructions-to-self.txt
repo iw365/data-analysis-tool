@@ -52,6 +52,10 @@ cd src
 venv if necessary:
 
 python -m venv .venv
-.venv\Scripts\activate or .venv/Scripts/activate (depending on shell(left is cmd, right is bash))
+.venv\Scripts\activate or .venv/Scripts/activate (depending on shell(left is pwr, right is bash))
+
+if permission error:
+-open powershell as admin
+-run: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 
 TODO: finish this

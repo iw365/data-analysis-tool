@@ -46,6 +46,7 @@ class x_axis_selector_frame(ctk.CTkFrame):
                                                                     frame_border_color=(accent1, primary),
                                                                     button_color=(secondary, primary),
                                                                     scrollbar_button_color=(accent1, primary),
+                                                                    #command = self.root.update_json_and_list,
                                                                     resize=True)
         
         self.x_axis_selector_label = ctk.CTkLabel(master=self,
