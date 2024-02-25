@@ -54,6 +54,7 @@ class x_axis_selector_frame(ctk.CTkFrame):
                                                 text_color=(accent1, '#FFFFFF'),
                                                 font=("Roboto", 12),
                                                 anchor='center')
+                                                #command=lambda: self.root.update_json_callback('x_axis', self))
         self.x_axis_selector_label.grid(row=0, column=1, padx=(0, 5), pady=(0, 0), sticky='ew')
         
 class y_axis_selector_frame(ctk.CTkFrame):
@@ -105,4 +106,5 @@ class y_axis_selector_frame(ctk.CTkFrame):
                                                 text_color=(accent1, '#FFFFFF'),
                                                 font=("Roboto", 12),
                                                 anchor='center')
+                                                #command=lambda: self.root.update_json_callback('y_axis', self))
         self.y_axis_selector_label.grid(row=0, column=1, padx=(0, 5), pady=(0, 0), sticky='ew')

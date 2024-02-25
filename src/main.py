@@ -210,6 +210,7 @@ class current_figure_frame(ctk.CTkFrame):
                                                 text='+',
                                                 text_color=(accent1, '#FFFFFF'),
                                                 font=("Roboto", 20),
+                                                state='disabled',
                                                 command=self.add_figure_callback)
         self.add_figure_button.grid(row=0, column=1, padx=(0, 5), pady=(0, 0))
         
@@ -224,6 +225,7 @@ class current_figure_frame(ctk.CTkFrame):
                                                 text='x',
                                                 text_color=(accent1, '#FFFFFF'),
                                                 font=("Roboto", 20),
+                                                state='disabled',
                                                 command=self.root.remove_fig)
         self.remove_figure_button.grid(row=0, column=2, padx=(0, 0), pady=(0, 0))
         
@@ -862,6 +864,7 @@ class root(tk.Tk):
         
         #create some lists
         self.current_figures = ['No figures created']
+        self.fig_data = {}
 
         self.initialise_ui()
 
@@ -967,22 +970,41 @@ class root(tk.Tk):
             self.column_headers = self.raw_data[0]
             print(self.column_headers)
             
-            self.fig_data = {}
-            
-            self.selected_figure = self.left_frame.current_figure_frame.current_figure_dropdown.get()
-            self.fig_data[self.selected_figure]['x_axis'] = str(self.left_frame.main_tabview.graph_tab_frame.x_axis_selector_frame.x_axis_selector_dropdown.get())
-            self.fig_data[self.selected_figure]['y_axis'] = str(self.left_frame.main_tabview.graph_tab_frame.y_axis_selector_frame.y_axis_selector_dropdown.get())
-            print(self.fig_data)
-            
-            self.json_data = json.dumps(self.fig_data)
-            with open('fig_data.json', 'w') as file:
-                file.write(self.json_data)
+            if self.left_frame.current_figure_frame.current_figure_dropdown.get() != "No figures created":
+                
+                self.selected_figure = self.left_frame.current_figure_frame.current_figure_dropdown.get()
+                self.fig_data[self.selected_figure] = {}
+                self.fig_data[self.selected_figure]['x_axis'] = str(self.left_frame.main_tabview.graph_tab_frame.x_axis_selector_frame.x_axis_selector_dropdown.get())
+                self.fig_data[self.selected_figure]['y_axis'] = str(self.left_frame.main_tabview.graph_tab_frame.y_axis_selector_frame.y_axis_selector_dropdown.get())
+                print(f'DEBUG AAAA\n\n{self.fig_data}\n\n')
+                
+                self.json_data = json.dumps(self.fig_data)
+                with open('fig_data.json', 'w') as file:
+                    file.write(self.json_data)
         except AttributeError:
             print("test")
         
     def close_file(self):
         
+        
+        #clean up
         self.right_frame.top_right_frame.data_tabview.table.pack_forget()
+        self.current_figures = ['No figures created']
+        
+        #empty the json file
+        with open('fig_data.json', 'w') as file:
+            file.write("{}")
+            
+        #clear all tabs
+        for widget in self.left_frame.main_tabview.graph_tab_frame.winfo_children():
+            widget.pack_forget()
+        # for widget in self.right_frame.top_right_frame.data_tab_frame.winfo_children():
+        #     widget.pack_forget()
+        # for widget in self.right_frame.top_right_frame.appearance_tab_frame.winfo_children():
+        #     widget.pack_forget()
+        # for widget in self.right_frame.top_right_frame.modify_tab_frame.winfo_children():
+        #     widget.pack_forget()
+        
         
         self.file_active = False
         print("closed file")
@@ -1006,11 +1028,16 @@ class root(tk.Tk):
             self.bottom.grid_columnconfigure(1, weight=1)
             
             #self.right_frame.top_right_frame.data_tabview.xy_table_frame.configure(fg_color=contrast_colour)
+            self.left_frame.current_figure_frame.add_figure_button.configure(state = 'normal')
+            self.left_frame.current_figure_frame.remove_figure_button.configure(state = 'normal')
 
         elif self.file_active == False:
             
             self.bottom.main_buttons_frame.close_file_button.grid_forget()
             self.bottom.main_buttons_frame.main_button.configure(text="upload file")
+            
+            self.left_frame.current_figure_frame.add_figure_button.configure(state = 'disabled')
+            self.left_frame.current_figure_frame.remove_figure_button.configure(state = 'disabled')
             
     def change_fig(self, plot):
         print(f"debug: {plot}")
@@ -1021,7 +1048,17 @@ class root(tk.Tk):
         print(self.plot_type)
         
         self.show_fig_options(self.plot_type)
-    
+        
+    def update_json_callback(self, field_to_edit, new_value_widget):
+        self.selected_figure = self.left_frame.current_figure_frame.current_figure_dropdown.get()
+        self.fig_data[self.selected_figure] = {}
+        self.fig_data[self.selected_figure][field_to_edit] = str(new_value_widget.get())
+        print(self.fig_data)
+        
+        self.json_data = json.dumps(self.fig_data)
+        with open('fig_data.json', 'w') as file:
+            file.write(self.json_data)
+
     def add_fig_callback(self, fig_name):
         
         if self.current_figures[0] == 'No figures created':
@@ -1038,10 +1075,29 @@ class root(tk.Tk):
         fig_counter+=1
         self.left_frame.current_figure_frame.toplevel_window.destroy()
         self.left_frame.current_figure_frame.current_figure_dropdown.set(fig_name)
+        
+        #split the string at the first hyphen and take the first part
+        self.plot_type = fig_name.split("-", 1)[0]
+        print(self.plot_type)
+        
+        self.show_fig_options(self.plot_type)
     
     def remove_fig(self):
         
         self.current_figures.remove(self.left_frame.current_figure_frame.current_figure_dropdown.get())
+        
+        #clear the figures json file
+        with open('fig_data.json', 'r') as file:
+            self.temp_data = json.load(file)
+        
+        if self.left_frame.current_figure_frame.current_figure_dropdown.get() in self.temp_data:
+            del self.temp_data[self.left_frame.current_figure_frame.current_figure_dropdown.get()]
+        
+        with open('fig_data.json', 'w') as file:
+            json.dump(self.temp_data, file)
+            
+        #remove the figure data from the fig_data list
+        self.fig_data = self.temp_data
         
         # set the dropdown to the figure before
         try:
@@ -1058,7 +1114,7 @@ class root(tk.Tk):
         
         self.left_frame.current_figure_frame.current_figure_dropdown.configure(values=self.current_figures)
         self.left_frame.current_figure_frame.current_figure_dropdown_test.configure(values=self.current_figures)
-        
+
         print(self.left_frame.current_figure_frame.current_figure_dropdown.get())
         print(self.current_figures)
         
