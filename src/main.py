@@ -16,6 +16,7 @@
 import os
 import sys
 import platform
+import math
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.join(script_dir, "root")
@@ -40,9 +41,11 @@ from modules.CTkScrollableDropdown import *
 from tabview_options import x_axis_selector_frame, y_axis_selector_frame
 
 import matplotlib
+from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.patches as patches
+from matplotlib import gridspec as gs
 
 import json
 import datetime as dt
@@ -423,7 +426,7 @@ class data_tabview(ctk.CTkTabview):
         self.add("Table")
 
         # add widgets on tabs
-        self.frame = ctk.CTkFrame(master=self.tab("Graph"))
+        self.frame = ctk.CTkFrame(master=self.tab("Graph"), fg_color='#FF0000')
         self.frame.pack(padx=10, pady=(0, 10), expand = True, fill = "both")
         
         # self.fig = Figure(figsize=(5, 5), dpi=100)
@@ -952,7 +955,7 @@ class root(tk.Tk):
         #print(self.table_data)
         
         self.column_data = list(map(list, zip(*self.raw_data)))
-        print(self.column_data)
+        print(f'column data: {self.column_data}')
         
         self.right_frame.top_right_frame.data_tabview.table = CTkTable(master = self.right_frame.top_right_frame.data_tabview.xy_table_frame,
                                                                         font=("Arial", width/75),
@@ -969,7 +972,11 @@ class root(tk.Tk):
         
         # graph stuff
         
-        #make a list of all column headers
+        # clear all current graphs
+        for widget in self.right_frame.top_right_frame.data_tabview.frame.winfo_children():
+            widget.pack_forget()
+        
+        #put data into list
         try:
             self.column_headers = self.raw_data[0]
             print(f'column headers: {self.column_headers}')
@@ -980,6 +987,9 @@ class root(tk.Tk):
                 self.fig_data[self.selected_figure] = {}
                 self.fig_data[self.selected_figure]['x_axis'] = str(self.left_frame.main_tabview.graph_tab_frame.x_axis_selector_frame.x_axis_selector_dropdown.get())
                 self.fig_data[self.selected_figure]['y_axis'] = str(self.left_frame.main_tabview.graph_tab_frame.y_axis_selector_frame.y_axis_selector_dropdown.get())
+                
+                self.fig_data[self.selected_figure]['x_data'] = self.column_data[self.column_headers.index(self.fig_data[self.selected_figure]['x_axis'])]
+                self.fig_data[self.selected_figure]['y_data'] = self.column_data[self.column_headers.index(self.fig_data[self.selected_figure]['y_axis'])]
                 print(f'DEBUG AAAA\n\n{self.fig_data}\n\n')
                 
                 self.json_data = json.dumps(self.fig_data)
@@ -988,8 +998,109 @@ class root(tk.Tk):
         except AttributeError:
             print("test")
         
-    def close_file(self):
+        #go through each figure in fig_data and add a figure to a canvas for each one
         
+        #use number of figures to determine how many subplots to create
+        
+        # #check if the length of fig_data is a square nuner
+        # if math.sqrt(len(self.fig_data)).is_integer():
+        #     self.graph_columns = int(math.sqrt(len(self.fig_data)))
+        #     self.graph_rows = int(math.sqrt(len(self.fig_data)))
+        #     print("length of list is square")
+        # else:
+        #     #always round up 
+        #     self.graph_columns = int(math.ceil(math.sqrt(len(self.fig_data))))
+        #     self.graph_rows = int(self.graph_columns)
+        #     print("length of list is not square")
+        
+        # print(f'graph columns: {self.graph_columns}')
+        # print(f'graph rows: {self.graph_rows}')
+        
+        # self.current_graph = 0
+        # print(self.graph_columns)
+        # print(self.graph_rows)
+        
+        # #get the size of the graph holder frame
+        # self.graph_holder_width = self.right_frame.top_right_frame.data_tabview.frame.winfo_width()
+        # print(f'graph holder width: {self.graph_holder_width}')
+        
+        #TODO
+        
+        try:
+            self.columns = math.ceil(math.sqrt(len(self.fig_data)))
+            self.base_rows = len(self.fig_data)//self.columns
+            self.extra_rows = len(self.fig_data)%self.columns
+        except ZeroDivisionError:
+            self.columns = 1
+            self.base_rows = 1
+            self.extra_rows = 0
+        
+        print(f'columns: {self.columns}')
+        print(f'base rows: {self.base_rows}')
+        print(f'extra rows: {self.extra_rows}')
+        
+        self.total_rows = self.base_rows + (self.extra_rows > 0)
+        
+        self.fig = plt.Figure(figsize=(5, 5), dpi=100)
+        self.plot_num = 1
+        
+        # UNFINISHED
+        
+        if self.current_figures[0] != 'No figures created':
+        
+            for row in range(self.base_rows):
+                for column in range(self.columns):
+                    self.ax = self.fig.add_subplot(self.total_rows, self.columns, self.plot_num)
+                    
+                    print(f'plot num: {self.plot_num}\n\n')
+                    print(f'fig_data: {self.fig_data}\n\n')
+                    print(f'current figures: {self.current_figures}\n\n')
+                    print(f'current figure: {self.current_figures[self.plot_num - 1]}\n\n')
+                    print(f'current figure x data: {self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']}\n\n')
+                    
+                    try:
+                        #use plot num to read from fig_data
+                        #print(self.fig_data[self.current_figures[self.plot_num-1]])
+                        pass
+                    except KeyError:
+                        print("no data")
+                    
+                    self.ax.plot(self.fig_data[self.current_figures[self.plot_num - 1]]['x_data'].pop(0), self.fig_data[self.current_figures[self.plot_num - 1]]['y_data'].pop(0))
+                    self.plot_num += 1
+            if self.extra_rows > 0:
+                for column in range(self.extra_rows):
+                    self.ax = self.fig.add_subplot(self.total_rows, self.columns, self.plot_num)
+                    
+                    print(f'plot num: {self.plot_num}\n\n')
+                    print(f'fig_data: {self.fig_data}\n\n')
+                    print(f'current figures: {self.current_figures}\n\n')
+                    print(f'current figure: {self.current_figures[self.plot_num - 1]}\n\n')
+                    print(f'current figure x data: {self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']}\n\n')
+                    
+                    try:
+                        #use plot num to read from fig_data
+                        #print(self.fig_data[self.current_figures[self.plot_num-1]])
+                        pass
+                    except KeyError:
+                        print("no data")
+                    
+                    self.ax.plot([0, 1, 2, 3, 4], [0, 1, 4, 9, 16])
+                    self.plot_num += 1
+            
+            #remove unused axes
+            if self.plot_num < self.total_rows*self.columns:
+                for i in range(self.plot_num, self.total_rows*self.columns + 1):
+                    self.fig.delaxes(self.fig.axes[i-1])
+            
+            self.canvas = FigureCanvasTkAgg(self.fig, master=self.right_frame.top_right_frame.data_tabview.frame)
+            self.canvas.draw()
+            self.canvas.get_tk_widget().pack(expand = True, fill = "both")
+            
+            #switch tab to table tab
+            self.right_frame.top_right_frame.data_tabview.set("Graph")
+        
+        
+    def close_file(self):
         
         #clean up
         self.right_frame.top_right_frame.data_tabview.table.pack_forget()
@@ -1048,7 +1159,7 @@ class root(tk.Tk):
         self.left_frame.current_figure_frame.current_figure_dropdown.set(plot)
         
         #split the string at the first hyphen and take the first part
-        self.plot_type = plot.split("-", 1)[0]
+        self.plot_type = plot
         print(self.plot_type)
         
         self.show_fig_options(self.plot_type)
@@ -1081,7 +1192,7 @@ class root(tk.Tk):
         self.left_frame.current_figure_frame.current_figure_dropdown.set(fig_name)
         
         #split the string at the first hyphen and take the first part
-        self.plot_type = fig_name.split("-", 1)[0]
+        self.plot_type = fig_name
         print(self.plot_type)
         
         self.show_fig_options(self.plot_type)
@@ -1105,11 +1216,14 @@ class root(tk.Tk):
         
         # set the dropdown to the figure before
         try:
+            self.change_fig_options = True
             self.left_frame.current_figure_frame.current_figure_dropdown.set(self.current_figures[-1])
         except IndexError:
             try:
+                self.change_fig_options = True
                 self.left_frame.current_figure_frame.current_figure_dropdown.set(self.current_figures[+1])
             except IndexError:
+                self.change_fig_options = False
                 self.current_figures.append('No figures created')
                 self.left_frame.current_figure_frame.current_figure_dropdown.set(self.current_figures[0])
                 self.left_frame.current_figure_frame.current_figure_dropdown.configure(state='disabled')
@@ -1118,11 +1232,19 @@ class root(tk.Tk):
         
         self.left_frame.current_figure_frame.current_figure_dropdown.configure(values=self.current_figures)
         self.left_frame.current_figure_frame.current_figure_dropdown_test.configure(values=self.current_figures)
-
+        
         print(self.left_frame.current_figure_frame.current_figure_dropdown.get())
         print(self.current_figures)
         
+        if self.change_fig_options == True:
+            print(self.left_frame.current_figure_frame.current_figure_dropdown.get())
+            self.show_fig_options((self.left_frame.current_figure_frame.current_figure_dropdown.get()))
+            
+        self.run_tool(self.filename)
+        
     def show_fig_options(self, fig):
+        
+        fig = fig.split("-", 1)[0]
         
         # clear the frame
         for widget in self.left_frame.main_tabview.graph_tab_frame.winfo_children():

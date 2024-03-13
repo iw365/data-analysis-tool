@@ -2,5 +2,7 @@
     "workbench.colorCustomizations": {
         "minimap.background": "#00000000",
         "scrollbar.shadow": "#00000000"
-    }
+    },
+    "python.autoComplete.extraPaths": ["./src"],
+    "python.analysis.extraPaths": ["./src"]
 }
