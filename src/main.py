@@ -426,7 +426,7 @@ class data_tabview(ctk.CTkTabview):
         self.add("Table")
 
         # add widgets on tabs
-        self.frame = ctk.CTkFrame(master=self.tab("Graph"), fg_color='#FF0000')
+        self.frame = ctk.CTkFrame(master=self.tab("Graph"), fg_color=secondary)
         self.frame.pack(padx=10, pady=(0, 10), expand = True, fill = "both")
         
         # self.fig = Figure(figsize=(5, 5), dpi=100)
@@ -1059,14 +1059,26 @@ class root(tk.Tk):
                     print(f'current figure x data: {self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']}\n\n')
                     
                     try:
-                        #use plot num to read from fig_data
-                        #print(self.fig_data[self.current_figures[self.plot_num-1]])
                         pass
                     except KeyError:
                         print("no data")
                     
-                    self.ax.plot(self.fig_data[self.current_figures[self.plot_num - 1]]['x_data'].pop(0), self.fig_data[self.current_figures[self.plot_num - 1]]['y_data'].pop(0))
+                    self.x_axis_data_list = self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']
+                    self.y_axis_data_list = self.fig_data[self.current_figures[self.plot_num - 1]]['y_data']
+                    self.x_axis_data_title = self.x_axis_data_list.pop(0)
+                    self.y_axis_data_title = self.y_axis_data_list.pop(0)
+                    print(f'x axis data: {self.x_axis_data_list}')
+                    print(f'y axis data: {self.y_axis_data_list}')
+                    
+                    self.ax.plot(self.x_axis_data_list, self.y_axis_data_list)
+                    
+                    #add titles
+                    self.ax.set_title(self.current_figures[self.plot_num - 1])
+                    self.ax.set_xlabel(self.x_axis_data_title)
+                    self.ax.set_ylabel(self.y_axis_data_title)
+                    
                     self.plot_num += 1
+                    
             if self.extra_rows > 0:
                 for column in range(self.extra_rows):
                     self.ax = self.fig.add_subplot(self.total_rows, self.columns, self.plot_num)
@@ -1083,8 +1095,21 @@ class root(tk.Tk):
                         pass
                     except KeyError:
                         print("no data")
+                        
+                    self.x_axis_data_list = self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']
+                    self.y_axis_data_list = self.fig_data[self.current_figures[self.plot_num - 1]]['y_data']
+                    self.x_axis_data_title = self.x_axis_data_list.pop(0)
+                    self.y_axis_data_title = self.y_axis_data_list.pop(0)
+                    print(f'x axis data: {self.x_axis_data_list}')
+                    print(f'y axis data: {self.y_axis_data_list}')
                     
-                    self.ax.plot([0, 1, 2, 3, 4], [0, 1, 4, 9, 16])
+                    self.ax.plot(self.x_axis_data_list, self.y_axis_data_list)
+                    
+                    #add titles
+                    self.ax.set_title(self.current_figures[self.plot_num - 1])
+                    self.ax.set_xlabel(self.x_axis_data_title)
+                    self.ax.set_ylabel(self.y_axis_data_title)
+                    
                     self.plot_num += 1
             
             #remove unused axes
@@ -1155,6 +1180,8 @@ class root(tk.Tk):
             self.left_frame.current_figure_frame.remove_figure_button.configure(state = 'disabled')
             
     def change_fig(self, plot):
+        
+        self.run_tool(self.filename)
         print(f"debug: {plot}")
         self.left_frame.current_figure_frame.current_figure_dropdown.set(plot)
         
