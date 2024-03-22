@@ -32,13 +32,12 @@ from CTkTable import *
 from PIL import Image
 try:
     import pywinstyles
-#if import error
 except ImportError:
     pass
 
 from modules.CTkXYFrame import ctk_xyframe
 from modules.CTkScrollableDropdown import *
-from tabview_options import x_axis_selector_frame, y_axis_selector_frame
+from tabview_options import x_axis_selector_frame,y_axis_selector_frame, show_best_fit_line_frame, show_grid_frame, show_legend_frame, spine_selector_frame
 
 import matplotlib
 from matplotlib import pyplot as plt
@@ -46,6 +45,8 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.patches as patches
 from matplotlib import gridspec as gs
+
+import numpy as np
 
 import json
 import datetime as dt
@@ -239,6 +240,37 @@ class current_figure_frame(ctk.CTkFrame):
         else:
             self.toplevel_window.focus()
 
+class appearance_tab_frame(ctk.CTkScrollableFrame):
+    def __init__(self, parent, root, width, height):
+        self.width = width
+        self.height = height
+        super().__init__(parent,
+                        width=self.width,
+                        height=self.height,
+                        fg_color=secondary,
+                        #fg_color='#FF0000',
+                        corner_radius = 10,
+                        scrollbar_button_color=(accent1, primary),
+                        scrollbar_button_hover_color=(accent1_light, primary_dark),)
+        self.root = root
+        #self.pack_propagate(False)
+        #self.grid_propagate(False)
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+        
+        self.test_label = ctk.CTkLabel(master=self,
+                                        width=self.width,
+                                        height=self.height/40,
+                                        fg_color=secondary,
+                                        #fg_color="#FF0000",
+                                        text_color=(accent1, '#FFFFFF'),
+                                        corner_radius=10,
+                                        font=("Arial", 14),
+                                        text="Add a figure plot to view options test 2",
+                                        anchor="w")
+        self.test_label.pack(padx=(10, 10), pady=(20, 0))
+
 class graph_tab_frame(ctk.CTkScrollableFrame):
     def __init__(self, parent, root, width, height):
         self.width = width
@@ -266,7 +298,7 @@ class graph_tab_frame(ctk.CTkScrollableFrame):
                                         text_color=(accent1, '#FFFFFF'),
                                         corner_radius=10,
                                         font=("Arial", 14),
-                                        text="TEST",
+                                        text="Add a figure plot to view options",
                                         anchor="w")
         self.test_label.pack(padx=(10, 10), pady=(20, 0))
 
@@ -304,13 +336,13 @@ class main_tabview(ctk.CTkTabview):
         
         self.graph_tab_frame = graph_tab_frame(parent = self.tab("Graph"), root = self.root, width = self.width, height = self.height)
         # self.data_tab_frame = data_tab_frame(parent = self.tab("Data"), width = self.width, height = self.height)
-        # self.appearance_tab_frame = appearance_tab_frame(parent = self.tab("Appearance"), width = self.width, height = self.height)
+        self.appearance_tab_frame = appearance_tab_frame(parent = self.tab("Appearance"), root = self.root, width = self.width, height = self.height)
         # self.modify_tab_frame = modify_tab_frame(parent = self.tab("Modifiy"), width = self.width, height = self.height)
         
         # add widgets on tabs
         self.graph_tab_frame.pack(padx=0, pady=(0, 0), expand = True, fill = "both")
         # self.data_tab_frame.pack(padx=10, pady=(0, 10), expand = True, fill = "both")
-        # self.appearance_tab_frame.pack(padx=10, pady=(0, 10), expand = True, fill = "both")
+        self.appearance_tab_frame.pack(padx=0, pady=(0, 0), expand = True, fill = "both")
         # self.modify_tab_frame.pack(padx=10, pady=(0, 10), expand = True, fill = "both")
 
 # CURRENTLY UNUSED
@@ -977,10 +1009,11 @@ class root(tk.Tk):
             widget.pack_forget()
         
         #put data into list
+    
+        self.column_headers = self.raw_data[0]
+        print(f'column headers: {self.column_headers}')
+        
         try:
-            self.column_headers = self.raw_data[0]
-            print(f'column headers: {self.column_headers}')
-            
             if self.left_frame.current_figure_frame.current_figure_dropdown.get() != "No figures created":
                 
                 self.selected_figure = self.left_frame.current_figure_frame.current_figure_dropdown.get()
@@ -990,13 +1023,29 @@ class root(tk.Tk):
                 
                 self.fig_data[self.selected_figure]['x_data'] = self.column_data[self.column_headers.index(self.fig_data[self.selected_figure]['x_axis'])]
                 self.fig_data[self.selected_figure]['y_data'] = self.column_data[self.column_headers.index(self.fig_data[self.selected_figure]['y_axis'])]
+                
+                self.fig_data[self.selected_figure]['LOBF'] = self.left_frame.main_tabview.graph_tab_frame.show_best_fit_line_frame.show_best_fit_line_checkbox.get()
+                
+                
+                self.fig_data[self.selected_figure]['show_grid'] = self.left_frame.main_tabview.appearance_tab_frame.show_grid_frame.show_grid_checkbox.get()
+                
+                self.fig_data[self.selected_figure]['show_legend'] = self.left_frame.main_tabview.appearance_tab_frame.show_legend_frame.show_legend_checkbox.get()
+                
+                print(f'\n\nNORTH SPINE = {self.left_frame.main_tabview.appearance_tab_frame.spine_selector_frame.north_spine}\n\n')
+                self.fig_data[self.selected_figure]['north_spine'] = self.left_frame.main_tabview.appearance_tab_frame.spine_selector_frame.north_spine
+                self.fig_data[self.selected_figure]['east_spine'] = self.left_frame.main_tabview.appearance_tab_frame.spine_selector_frame.east_spine
+                self.fig_data[self.selected_figure]['south_spine'] = self.left_frame.main_tabview.appearance_tab_frame.spine_selector_frame.south_spine
+                self.fig_data[self.selected_figure]['west_spine'] = self.left_frame.main_tabview.appearance_tab_frame.spine_selector_frame.west_spine
+                
                 print(f'DEBUG AAAA\n\n{self.fig_data}\n\n')
                 
-                self.json_data = json.dumps(self.fig_data)
+                self.json_data = json.dumps(self.fig_data, indent=4)
                 with open('fig_data.json', 'w') as file:
                     file.write(self.json_data)
+        
         except AttributeError:
             print("test")
+        
         
         #go through each figure in fig_data and add a figure to a canvas for each one
         
@@ -1042,6 +1091,7 @@ class root(tk.Tk):
         self.total_rows = self.base_rows + (self.extra_rows > 0)
         
         self.fig = plt.Figure(figsize=(5, 5), dpi=100)
+        self.fig.set_facecolor(primary)
         self.plot_num = 1
         
         # UNFINISHED
@@ -1050,65 +1100,13 @@ class root(tk.Tk):
         
             for row in range(self.base_rows):
                 for column in range(self.columns):
-                    self.ax = self.fig.add_subplot(self.total_rows, self.columns, self.plot_num)
-                    
-                    print(f'plot num: {self.plot_num}\n\n')
-                    print(f'fig_data: {self.fig_data}\n\n')
-                    print(f'current figures: {self.current_figures}\n\n')
-                    print(f'current figure: {self.current_figures[self.plot_num - 1]}\n\n')
-                    print(f'current figure x data: {self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']}\n\n')
-                    
-                    try:
-                        pass
-                    except KeyError:
-                        print("no data")
-                    
-                    self.x_axis_data_list = self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']
-                    self.y_axis_data_list = self.fig_data[self.current_figures[self.plot_num - 1]]['y_data']
-                    self.x_axis_data_title = self.x_axis_data_list.pop(0)
-                    self.y_axis_data_title = self.y_axis_data_list.pop(0)
-                    print(f'x axis data: {self.x_axis_data_list}')
-                    print(f'y axis data: {self.y_axis_data_list}')
-                    
-                    self.ax.plot(self.x_axis_data_list, self.y_axis_data_list)
-                    
-                    #add titles
-                    self.ax.set_title(self.current_figures[self.plot_num - 1])
-                    self.ax.set_xlabel(self.x_axis_data_title)
-                    self.ax.set_ylabel(self.y_axis_data_title)
+                    self.set_up_figure()
                     
                     self.plot_num += 1
                     
             if self.extra_rows > 0:
                 for column in range(self.extra_rows):
-                    self.ax = self.fig.add_subplot(self.total_rows, self.columns, self.plot_num)
-                    
-                    print(f'plot num: {self.plot_num}\n\n')
-                    print(f'fig_data: {self.fig_data}\n\n')
-                    print(f'current figures: {self.current_figures}\n\n')
-                    print(f'current figure: {self.current_figures[self.plot_num - 1]}\n\n')
-                    print(f'current figure x data: {self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']}\n\n')
-                    
-                    try:
-                        #use plot num to read from fig_data
-                        #print(self.fig_data[self.current_figures[self.plot_num-1]])
-                        pass
-                    except KeyError:
-                        print("no data")
-                        
-                    self.x_axis_data_list = self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']
-                    self.y_axis_data_list = self.fig_data[self.current_figures[self.plot_num - 1]]['y_data']
-                    self.x_axis_data_title = self.x_axis_data_list.pop(0)
-                    self.y_axis_data_title = self.y_axis_data_list.pop(0)
-                    print(f'x axis data: {self.x_axis_data_list}')
-                    print(f'y axis data: {self.y_axis_data_list}')
-                    
-                    self.ax.plot(self.x_axis_data_list, self.y_axis_data_list)
-                    
-                    #add titles
-                    self.ax.set_title(self.current_figures[self.plot_num - 1])
-                    self.ax.set_xlabel(self.x_axis_data_title)
-                    self.ax.set_ylabel(self.y_axis_data_title)
+                    self.set_up_figure()
                     
                     self.plot_num += 1
             
@@ -1124,6 +1122,107 @@ class root(tk.Tk):
             #switch tab to table tab
             self.right_frame.top_right_frame.data_tabview.set("Graph")
         
+    def set_up_figure(self):
+        
+        match (self.current_figures[self.plot_num - 1]).split("-", 1)[0]:
+            case 'plot':
+        
+                self.ax = self.fig.add_subplot(self.total_rows, self.columns, self.plot_num)
+
+                print(f'plot num: {self.plot_num}\n\n')
+                print(f'fig_data: {self.fig_data}\n\n')
+                print(f'current figures: {self.current_figures}\n\n')
+                print(f'current figure: {self.current_figures[self.plot_num - 1]}\n\n')
+                print(f'current figure x data: {self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']}\n\n')
+                
+                try:
+                    pass
+                except KeyError:
+                    print("no data")
+                
+                self.x_axis_data_list = self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']
+                self.y_axis_data_list = self.fig_data[self.current_figures[self.plot_num - 1]]['y_data']
+                self.x_axis_data_title = self.x_axis_data_list.pop(0)
+                self.y_axis_data_title = self.y_axis_data_list.pop(0)
+                
+                self.x_axis_data_list = [int(x) for x in self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']]
+                self.y_axis_data_list = [int(y) for y in self.fig_data[self.current_figures[self.plot_num - 1]]['y_data']]
+                
+                print(f'x axis data: {self.x_axis_data_list}')
+                print(f'y axis data: {self.y_axis_data_list}')
+                
+                self.ax.plot(self.x_axis_data_list,
+                            self.y_axis_data_list,
+                            color=accent1,
+                            marker='o',
+                            linestyle='-',
+                            linewidth=2,
+                            markersize=5,
+                            label='Original Data')
+                
+                if self.fig_data[self.current_figures[self.plot_num - 1]]['LOBF'] == 'on':
+                    # line of best fit
+                    self.LOBF_coefficients = np.polyfit(self.x_axis_data_list, self.y_axis_data_list, 1)
+                    self.LOBF = np.poly1d(self.LOBF_coefficients)
+                    self.LOBF_x_values = np.linspace(min(self.x_axis_data_list), max(self.x_axis_data_list), 100)
+                    self.LOBF_y_values = self.LOBF(self.LOBF_x_values)
+                    
+                    self.ax.plot(self.LOBF_x_values,
+                                self.LOBF_y_values,
+                                color=accent2,
+                                linestyle='-',
+                                linewidth=2,
+                                markersize=5,
+                                label='LOBF')
+                
+                if self.fig_data[self.current_figures[self.plot_num - 1]]['show_legend'] == 'on':
+                    self.legend = self.ax.legend()
+                    self.legend.get_frame().set_facecolor(secondary)
+                    self.legend.get_frame().set_edgecolor(contrast_colour)
+                    #self.legend.get_frame().set_color(contrast_colour)
+                    #cahnge text colour
+                    for text in self.legend.get_texts():
+                        text.set_color(contrast_colour)
+                
+                #add titles
+                self.ax.set_title(self.current_figures[self.plot_num - 1])
+                self.ax.set_xlabel(self.x_axis_data_title)
+                self.ax.set_ylabel(self.y_axis_data_title)
+                
+                #spines
+                if self.fig_data[self.current_figures[self.plot_num - 1]]['north_spine'] == 1:
+                    self.ax.spines['top'].set_visible(True)
+                else:
+                    self.ax.spines['top'].set_visible(False)
+                if self.fig_data[self.current_figures[self.plot_num - 1]]['east_spine'] == 1:
+                    self.ax.spines['right'].set_visible(True)
+                else:
+                    self.ax.spines['right'].set_visible(False)
+                if self.fig_data[self.current_figures[self.plot_num - 1]]['south_spine'] == 1:
+                    self.ax.spines['bottom'].set_visible(True)
+                else:
+                    self.ax.spines['bottom'].set_visible(False)
+                if self.fig_data[self.current_figures[self.plot_num - 1]]['west_spine'] == 1:
+                    self.ax.spines['left'].set_visible(True)
+                else:
+                    self.ax.spines['left'].set_visible(False)
+                
+                #colours - testing
+                self.ax.set_facecolor(primary)
+                self.ax.title.set_color(contrast_colour)
+                self.ax.xaxis.label.set_color(contrast_colour)
+                self.ax.yaxis.label.set_color(contrast_colour)
+                self.ax.tick_params(axis='x', colors=contrast_colour)
+                self.ax.tick_params(axis='y', colors=contrast_colour)
+                self.ax.spines['bottom'].set_color(contrast_colour)
+                self.ax.spines['left'].set_color(contrast_colour)
+                self.ax.spines['right'].set_color(contrast_colour)
+                self.ax.spines['top'].set_color(contrast_colour)
+                
+                if self.fig_data[self.current_figures[self.plot_num - 1]]['show_grid'] == 'on':
+                    self.ax.grid(True)
+                else:
+                    self.ax.grid(False)
         
     def close_file(self):
         
@@ -1140,14 +1239,15 @@ class root(tk.Tk):
             widget.pack_forget()
         # for widget in self.right_frame.top_right_frame.data_tab_frame.winfo_children():
         #     widget.pack_forget()
-        # for widget in self.right_frame.top_right_frame.appearance_tab_frame.winfo_children():
-        #     widget.pack_forget()
+        for widget in self.right_frame.top_right_frame.appearance_tab_frame.winfo_children():
+            widget.pack_forget()
         # for widget in self.right_frame.top_right_frame.modify_tab_frame.winfo_children():
         #     widget.pack_forget()
         
         
         self.file_active = False
         print("closed file")
+        self.run_tool(self.filename)
         self.refresh_ui()
     
     def refresh_ui(self): #! set file_active to its new value BEFORE running this function
@@ -1197,11 +1297,13 @@ class root(tk.Tk):
         self.fig_data[self.selected_figure][field_to_edit] = str(new_value_widget.get())
         print(self.fig_data)
         
-        self.json_data = json.dumps(self.fig_data)
+        self.json_data = json.dumps(self.fig_data, indent=4)
         with open('fig_data.json', 'w') as file:
             file.write(self.json_data)
 
     def add_fig_callback(self, fig_name):
+        
+        self.run_tool(self.filename)
         
         if self.current_figures[0] == 'No figures created':
             self.current_figures.pop(0)
@@ -1276,6 +1378,9 @@ class root(tk.Tk):
         # clear the frame
         for widget in self.left_frame.main_tabview.graph_tab_frame.winfo_children():
             widget.pack_forget()
+            
+        for widget in self.left_frame.main_tabview.appearance_tab_frame.winfo_children():
+            widget.pack_forget()
         
         match fig:
             case "plot":
@@ -1307,6 +1412,47 @@ class root(tk.Tk):
                     self.graph_tab.y_axis_selector_frame.y_axis_selector_dropdown.set(self.fig_data[self.left_frame.current_figure_frame.current_figure_dropdown.get()]['y_axis'])
                 except KeyError:
                     self.graph_tab.y_axis_selector_frame.y_axis_selector_dropdown.set("No data")
+                
+                self.graph_tab.show_best_fit_line_frame = show_best_fit_line_frame(parent = self.graph_tab, root = self, width = self.width, height = self.height)
+                self.graph_tab.show_best_fit_line_frame.pack(padx=(0, 10), pady=(0, 10), expand = True, fill = "x")
+                
+                try:
+                    if self.fig_data[self.left_frame.current_figure_frame.current_figure_dropdown.get()]['LOBF'] == 'on':
+                        self.graph_tab.show_best_fit_line_frame.show_best_fit_line_checkbox.select()
+                    else:
+                        self.graph_tab.show_best_fit_line_frame.show_best_fit_line_checkbox.deselect()
+                except:
+                    self.graph_tab.show_best_fit_line_frame.show_best_fit_line_checkbox.deselect()
+                
+                
+                # APPEARANCE TAB
+                
+                self.appearance_tab = self.left_frame.main_tabview.appearance_tab_frame
+                
+                self.appearance_tab.show_grid_frame = show_grid_frame(parent = self.appearance_tab, root = self, width = self.width, height = self.height)
+                self.appearance_tab.show_grid_frame.pack(padx=(0, 10), pady=(10, 10), expand = True, fill = "x") # not appearing for some reason
+                
+                try:
+                    if self.fig_data[self.left_frame.current_figure_frame.current_figure_dropdown.get()]['show_grid'] == 'on':
+                        self.appearance_tab.show_grid_frame.show_grid_checkbox.select()
+                    else:
+                        self.appearance_tab.show_grid_frame.show_grid_checkbox.deselect()
+                except:
+                    self.appearance_tab.show_grid_frame.show_grid_checkbox.deselect()
+                
+                self.appearance_tab.show_legend_frame = show_legend_frame(parent = self.appearance_tab, root = self, width = self.width, height = self.height)
+                self.appearance_tab.show_legend_frame.pack(padx=(0, 10), pady=(0, 10), expand = True, fill = "x")
+                
+                try:
+                    if self.fig_data[self.left_frame.current_figure_frame.current_figure_dropdown.get()]['show_legend'] == 'on':
+                        self.appearance_tab.show_legend_frame.show_legend_checkbox.select()
+                    else:
+                        self.appearance_tab.show_legend_frame.show_legend_checkbox.deselect()
+                except: # if the key doesn't exist, select by default
+                    self.appearance_tab.show_legend_frame.show_legend_checkbox.select()
+                    
+                self.appearance_tab.spine_selector_frame = spine_selector_frame(parent = self.appearance_tab, root = self, width = self.width, height = self.height)
+                self.appearance_tab.spine_selector_frame.pack(padx=(0, 10), pady=(0, 10), expand = True, fill = "x")
                 
     def exit_app_callback(self):
         #root.destroy()
