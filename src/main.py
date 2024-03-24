@@ -596,7 +596,7 @@ class bottom_options_panel(ctk.CTkFrame):
         self.main_buttons_frame.grid(row=0, column=0, padx=(20, 5), pady=(20, 5), sticky="nsew")
         self.main_buttons_frame.grid(row=0, column=0, sticky="nsew")
         
-        self.button1 = ctk.CTkButton(master=self,
+        self.save_figure_button = ctk.CTkButton(master=self,
                                     #width = self.width,
                                     #height = self.height,
                                     fg_color=(primary, primary),
@@ -604,7 +604,7 @@ class bottom_options_panel(ctk.CTkFrame):
                                     border_width=0,
                                     border_color=(accent1, spare),
                                     corner_radius=10,
-                                    text='button 1',
+                                    text='Save Figure',
                                     text_color=(accent1, '#FFFFFF'),
                                     font=("Roboto", 20),
                                     command = self.button1_callback)
@@ -635,7 +635,7 @@ class bottom_options_panel(ctk.CTkFrame):
                                     font=("Roboto", 20),
                                     command = self.button3_callback)
         
-        self.button1.grid(row=0, column=1, padx=(5, 20), pady=(20, 5), sticky="nsew")
+        self.save_figure_button.grid(row=0, column=1, padx=(5, 20), pady=(20, 5), sticky="nsew")
         self.button2.grid(row=1, column=0, padx=(20, 5), pady=(5, 20), sticky="nsew")
         self.button3.grid(row=1, column=1, padx=(5, 20), pady=(5, 20), sticky="nsew")
         
@@ -644,7 +644,7 @@ class bottom_options_panel(ctk.CTkFrame):
         # self.button3.grid(row=1, column=1, sticky="nsew")
         
     def button1_callback(self):
-        print("button 1")
+        self.root.save_figure()
     
     def button2_callback(self):
         print("button 2")
@@ -1290,6 +1290,15 @@ class root(tk.Tk):
         print(self.plot_type)
         
         self.show_fig_options(self.plot_type)
+        
+    def save_figure(self):
+        directory = 'exports/graphs'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        try:
+            self.fig.savefig(os.path.join(directory, f'figure[{dt.datetime.now().strftime("%Y-%m-%d")}].png'), dpi=300)
+        except AttributeError:
+            print("no figure to save")
         
     def update_json_callback(self, field_to_edit, new_value_widget):
         self.selected_figure = self.left_frame.current_figure_frame.current_figure_dropdown.get()
