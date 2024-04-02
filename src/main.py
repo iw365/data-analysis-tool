@@ -37,7 +37,7 @@ except ImportError:
 
 from modules.CTkXYFrame import ctk_xyframe
 from modules.CTkScrollableDropdown import *
-from tabview_options import x_axis_selector_frame,y_axis_selector_frame, show_best_fit_line_frame, show_grid_frame, show_legend_frame, spine_selector_frame
+from tabview_options import x_axis_selector_frame,y_axis_selector_frame, show_best_fit_line_frame, show_grid_frame, show_legend_frame, spine_selector_frame, main_calculation_button_frame, calculation_results_frame, z_score_frame, z_score_results_frame
 
 import matplotlib
 from matplotlib import pyplot as plt
@@ -135,7 +135,7 @@ class new_figure_popup(ctk.CTkToplevel):
                                         command=lambda: self.root.add_fig_callback(f"plot-{fig_counter}"))
         self.plot_button.pack(pady=20, padx=20)
         
-        self.update()
+        self.update() # update window
         self.grab_set() # make window modal
 
 class current_figure_frame(ctk.CTkFrame):
@@ -235,10 +235,40 @@ class current_figure_frame(ctk.CTkFrame):
         
     def add_figure_callback(self):
         
-        if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
+        if self.toplevel_window is None or not self.toplevel_window.winfo_exists(): # check if window is None or destroyed
                 self.toplevel_window = new_figure_popup(self, root = self.root)  # create window if its None or destroyed
         else:
-            self.toplevel_window.focus()
+            self.toplevel_window.focus() # focus window if it exists
+
+class modify_tab_frame(ctk.CTkScrollableFrame):
+    def __init__(self, parent, width, height):
+        self.width = width
+        self.height = height
+        super().__init__(parent,
+                        width=self.width,
+                        height=self.height,
+                        fg_color=secondary,
+                        #fg_color='#FF0000',
+                        corner_radius = 10,
+                        scrollbar_button_color=(accent1, primary),
+                        scrollbar_button_hover_color=(accent1_light, primary_dark),)
+        #self.pack_propagate(False)
+        #self.grid_propagate(False)
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+        
+        self.test_label = ctk.CTkLabel(master=self,
+                                        width=self.width,
+                                        height=self.height/40,
+                                        fg_color=secondary,
+                                        #fg_color="#FF0000",
+                                        text_color=(accent1, '#FFFFFF'),
+                                        corner_radius=10,
+                                        font=("Arial", 14),
+                                        text="Add a figure plot to view options",
+                                        anchor="w")
+        self.test_label.pack(padx=(10, 10), pady=(20, 0))
 
 class appearance_tab_frame(ctk.CTkScrollableFrame):
     def __init__(self, parent, root, width, height):
@@ -267,9 +297,40 @@ class appearance_tab_frame(ctk.CTkScrollableFrame):
                                         text_color=(accent1, '#FFFFFF'),
                                         corner_radius=10,
                                         font=("Arial", 14),
-                                        text="Add a figure plot to view options test 2",
+                                        text="Add a figure plot to view options",
                                         anchor="w")
         self.test_label.pack(padx=(10, 10), pady=(20, 0))
+
+class data_tab_frame(ctk.CTkScrollableFrame):
+    def __init__(self, parent, root, width, height):
+        self.width = width
+        self.height = height
+        super().__init__(parent,
+                        width=self.width,
+                        height=self.height,
+                        fg_color=secondary,
+                        #fg_color='#FF0000',
+                        corner_radius = 10,
+                        scrollbar_button_color=(accent1, primary),
+                        scrollbar_button_hover_color=(accent1_light, primary_dark),)
+        self.root = root
+        #self.pack_propagate(False)
+        #self.grid_propagate(False)
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+        
+        self.test_label = ctk.CTkLabel(master=self,
+                                        width=self.width,
+                                        height=self.height/40,
+                                        fg_color=secondary,
+                                        #fg_color="#FF0000",
+                                        text_color=(accent1, '#FFFFFF'),
+                                        corner_radius=10,
+                                        font=("Arial", 14),
+                                        text="Add a figure plot to view options",
+                                        anchor="w")
+        #self.test_label.pack(padx=(10, 10), pady=(20, 0))
 
 class graph_tab_frame(ctk.CTkScrollableFrame):
     def __init__(self, parent, root, width, height):
@@ -335,15 +396,15 @@ class main_tabview(ctk.CTkTabview):
         # add a scrollabe frame instance to each of the tabs
         
         self.graph_tab_frame = graph_tab_frame(parent = self.tab("Graph"), root = self.root, width = self.width, height = self.height)
-        # self.data_tab_frame = data_tab_frame(parent = self.tab("Data"), width = self.width, height = self.height)
+        self.data_tab_frame = data_tab_frame(parent = self.tab("Data"), root=self.root, width = self.width, height = self.height)
         self.appearance_tab_frame = appearance_tab_frame(parent = self.tab("Appearance"), root = self.root, width = self.width, height = self.height)
-        # self.modify_tab_frame = modify_tab_frame(parent = self.tab("Modifiy"), width = self.width, height = self.height)
+        self.modify_tab_frame = modify_tab_frame(parent = self.tab("Modifiy"), width = self.width, height = self.height)
         
         # add widgets on tabs
         self.graph_tab_frame.pack(padx=0, pady=(0, 0), expand = True, fill = "both")
-        # self.data_tab_frame.pack(padx=10, pady=(0, 10), expand = True, fill = "both")
+        self.data_tab_frame.pack(padx=0, pady=(0, 0), expand = True, fill = "both")
         self.appearance_tab_frame.pack(padx=0, pady=(0, 0), expand = True, fill = "both")
-        # self.modify_tab_frame.pack(padx=10, pady=(0, 10), expand = True, fill = "both")
+        self.modify_tab_frame.pack(padx=10, pady=(0, 10), expand = True, fill = "both")
 
 # CURRENTLY UNUSED
 # --------------------------------------------------------------- #
@@ -617,7 +678,7 @@ class bottom_options_panel(ctk.CTkFrame):
                                     border_width=0,
                                     border_color=(accent1, spare),
                                     corner_radius=10,
-                                    text='button 2',
+                                    text='Save Calculation Results',
                                     text_color=(accent1, '#FFFFFF'),
                                     font=("Roboto", 20),
                                     command = self.button2_callback)
@@ -630,7 +691,7 @@ class bottom_options_panel(ctk.CTkFrame):
                                     border_width=0,
                                     border_color=(accent1, spare),
                                     corner_radius=10,
-                                    text='button 3',
+                                    text='export data to lists',
                                     text_color=(accent1, '#FFFFFF'),
                                     font=("Roboto", 20),
                                     command = self.button3_callback)
@@ -647,10 +708,10 @@ class bottom_options_panel(ctk.CTkFrame):
         self.root.save_figure()
     
     def button2_callback(self):
-        print("button 2")
+        self.root.save_calculation_results()
     
     def button3_callback(self):
-        print("button 3")
+        self.root.export_lists_as_txt()
 
 class bottom_options_frame(ctk.CTkFrame):
     def __init__(self, parent, root, width, height):
@@ -787,10 +848,11 @@ class terminal_frame(ctk.CTkFrame):
                                     border_width=0,
                                     corner_radius=10)
         # self.terminal.pack(padx=30, pady=(0,0), fill = "both", expand = False)
-        self.terminal.pack(padx=(0, 10), pady=(0,10), expand = False)
+        
+        self.terminal.pack(padx=(0, 10), pady=(0,10), expand = False) 
         self.terminal.configure(state = "normal")
-        self.terminal.insert("end", f"> APP START\n\n----------\n\n")
-        self.terminal.configure(state = "disabled")
+        self.terminal.insert("end", f"> APP START\n\n----------\n\n") # add initial text
+        self.terminal.configure(state = "disabled") # disable editing (will need to be enabled for clearing)
         
     def clear_terminal(self):
         self.terminal.configure(state = "normal")
@@ -803,11 +865,11 @@ class terminal_frame(ctk.CTkFrame):
         print("debug")
         
     def save_terminal_to_file(self):
-        directory = 'exports/terminal_data'
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-        with open(os.path.join(directory, f'terminal_data_{dt.datetime.now().strftime("%Y-%m-%d")}.txt'), 'w') as file:
-            file.write(self.terminal.get('1.0', 'end'))
+        directory = 'exports/terminal_data' # set target directory
+        if not os.path.exists(directory): # check if directory exists
+            os.makedirs(directory) # create directory if it doesnt exist
+        with open(os.path.join(directory, f'terminal_data_{dt.datetime.now().strftime("%Y-%m-%d")}.txt'), 'w') as file: # open file in write mode
+            file.write(self.terminal.get('1.0', 'end')) # write terminal data to file
         root.terminal_callback("Terminal data saved", "hard")
 
 
@@ -889,16 +951,16 @@ class root(tk.Tk):
         super().__init__()
         self.title("Data Analysis Tool")
         self.resizable(False, False) # disable resizing
-        if platform.system() == "Windows":
+        if platform.system() == "Windows": # check if platform is windows
             #pywinstyles.apply_style(self, "mica")
-            pywinstyles.change_header_color(self, primary)
+            pywinstyles.change_header_color(self, primary) # change header color
         
-        self.geometry(f'{self.width}x{self.height}+50+50')
+        self.geometry(f'{self.width}x{self.height}+50+50') # set window size and positioning
         #self.iconbitmap('classes/empty.ico') #change icon
         #ctk.set_appearance_mode("Light")
         
         #create some lists
-        self.current_figures = ['No figures created']
+        self.current_figures = ['No figures created'] # for the dropdown thumbnail
         self.fig_data = {}
 
         self.initialise_ui()
@@ -915,29 +977,30 @@ class root(tk.Tk):
         
         self.toplevel_window = None
     
-    def main_button_callback(self):
-        if self.file_active == False:
-            self.upload_file()
-        elif self.file_active == True:
-            self.run_tool(self.filename)
+    def main_button_callback(self): # callback for the main button
+        if self.file_active == False: # if no file is active
+            self.upload_file() # open file dialogue
+        elif self.file_active == True: # if a file is active
+            self.run_tool(self.filename) # run the tool with the selected file
     
     def upload_file(self):
         root.terminal_callback(f"File Dialogue opened", "soft")
-        self.filename = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a File", filetypes=((("CSV files", "*.csv"), ("All files", "*.*"))))
+        self.filename = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select a File", filetypes=((("CSV files", "*.csv"), ("All files", "*.*")))) # open file dialogue window
         print(self.filename)
         
-        if not self.filename:
+        #error handling
+        if not self.filename: # if no file is selected
             print("No file selected.")
             self.terminal_callback("No file selected", "soft")
-        elif not os.path.isfile(self.filename):
+        elif not os.path.isfile(self.filename): # if file does not exist
             print("File not found.")
             self.terminal_callback("File not found", "soft")
-        elif not self.filename.endswith('.csv'):
+        elif not self.filename.endswith('.csv'): # if file is not a csv file
             print("File is not a CSV file.")
             self.terminal_callback("File is not a CSV file", "soft")
         else:
             root.terminal_callback(f"FILE SELECTED: {self.filename}", "hard")
-            self.file_active = True
+            self.file_active = True 
             self.refresh_ui()
             
             self.run_tool(self.filename)
@@ -945,7 +1008,7 @@ class root(tk.Tk):
             
             #clear the fig_data json file
             with open('fig_data.json', 'w') as file:
-                file.write("{}")
+                file.write("{}") # clear the file
             
             #switch tab to table tab
             self.right_frame.top_right_frame.data_tabview.set("Table")
@@ -1037,7 +1100,7 @@ class root(tk.Tk):
                 self.fig_data[self.selected_figure]['south_spine'] = self.left_frame.main_tabview.appearance_tab_frame.spine_selector_frame.south_spine
                 self.fig_data[self.selected_figure]['west_spine'] = self.left_frame.main_tabview.appearance_tab_frame.spine_selector_frame.west_spine
                 
-                print(f'DEBUG AAAA\n\n{self.fig_data}\n\n')
+                print(f'DEBUG \n\n{self.fig_data}\n\n')
                 
                 self.json_data = json.dumps(self.fig_data, indent=4)
                 with open('fig_data.json', 'w') as file:
@@ -1075,11 +1138,12 @@ class root(tk.Tk):
         
         #TODO
         
+        # distribute the figures across the canvas in a roughly even way
         try:
             self.columns = math.ceil(math.sqrt(len(self.fig_data)))
             self.base_rows = len(self.fig_data)//self.columns
             self.extra_rows = len(self.fig_data)%self.columns
-        except ZeroDivisionError:
+        except ZeroDivisionError: # in case there are no figures, 1x1 grid is created
             self.columns = 1
             self.base_rows = 1
             self.extra_rows = 0
@@ -1088,15 +1152,15 @@ class root(tk.Tk):
         print(f'base rows: {self.base_rows}')
         print(f'extra rows: {self.extra_rows}')
         
-        self.total_rows = self.base_rows + (self.extra_rows > 0)
+        self.total_rows = self.base_rows + (self.extra_rows > 0) # if there are extra rows, add 1
         
-        self.fig = plt.Figure(figsize=(5, 5), dpi=100)
-        self.fig.set_facecolor(primary)
+        self.fig = plt.Figure(figsize=(5, 5), dpi=100) # create figure
+        self.fig.set_facecolor(primary) # set face color
         self.plot_num = 1
         
         # UNFINISHED
         
-        if self.current_figures[0] != 'No figures created':
+        if self.current_figures[0] != 'No figures created': # if there are figures
         
             for row in range(self.base_rows):
                 for column in range(self.columns):
@@ -1113,19 +1177,19 @@ class root(tk.Tk):
             #remove unused axes
             if self.plot_num < self.total_rows*self.columns:
                 for i in range(self.plot_num, self.total_rows*self.columns + 1):
-                    self.fig.delaxes(self.fig.axes[i-1])
+                    self.fig.delaxes(self.fig.axes[i-1]) # remove unused axes, -1 because axes are 0 indexed
             
-            self.canvas = FigureCanvasTkAgg(self.fig, master=self.right_frame.top_right_frame.data_tabview.frame)
-            self.canvas.draw()
+            self.canvas = FigureCanvasTkAgg(self.fig, master=self.right_frame.top_right_frame.data_tabview.frame) # create canvas
+            self.canvas.draw() # draw canvas (need to refesh with this line after changing the figure)
             self.canvas.get_tk_widget().pack(expand = True, fill = "both")
             
             #switch tab to table tab
-            self.right_frame.top_right_frame.data_tabview.set("Graph")
+            self.right_frame.top_right_frame.data_tabview.set("Graph") # change tab 
         
     def set_up_figure(self):
         
-        match (self.current_figures[self.plot_num - 1]).split("-", 1)[0]:
-            case 'plot':
+        match (self.current_figures[self.plot_num - 1]).split("-", 1)[0]: # just get hthe first part of the string
+            case 'plot': # if the figure is a plot
         
                 self.ax = self.fig.add_subplot(self.total_rows, self.columns, self.plot_num)
 
@@ -1140,16 +1204,26 @@ class root(tk.Tk):
                 except KeyError:
                     print("no data")
                 
+                # get the data for the x and y axes
+                # this is a list of strings, convert to int later
                 self.x_axis_data_list = self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']
                 self.y_axis_data_list = self.fig_data[self.current_figures[self.plot_num - 1]]['y_data']
+                
+                #get headers by removing the first element of the list
+                # pop will return the removed element, not the removed list, sdo dont use it other than this
                 self.x_axis_data_title = self.x_axis_data_list.pop(0)
                 self.y_axis_data_title = self.y_axis_data_list.pop(0)
                 
+                #cast all to int so plotting works correctly
                 self.x_axis_data_list = [int(x) for x in self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']]
                 self.y_axis_data_list = [int(y) for y in self.fig_data[self.current_figures[self.plot_num - 1]]['y_data']]
                 
+                #debug
                 print(f'x axis data: {self.x_axis_data_list}')
                 print(f'y axis data: {self.y_axis_data_list}')
+                
+                
+                # PLOT DATA
                 
                 self.ax.plot(self.x_axis_data_list,
                             self.y_axis_data_list,
@@ -1160,12 +1234,17 @@ class root(tk.Tk):
                             markersize=5,
                             label='Original Data')
                 
-                if self.fig_data[self.current_figures[self.plot_num - 1]]['LOBF'] == 'on':
+                
+                # LINE OF BEST FIT (LOBF)
+                
+                if self.fig_data[self.current_figures[self.plot_num - 1]]['LOBF'] == 'on': # get the stored value for whether or not to show LOBF
                     # line of best fit
-                    self.LOBF_coefficients = np.polyfit(self.x_axis_data_list, self.y_axis_data_list, 1)
-                    self.LOBF = np.poly1d(self.LOBF_coefficients)
-                    self.LOBF_x_values = np.linspace(min(self.x_axis_data_list), max(self.x_axis_data_list), 100)
-                    self.LOBF_y_values = self.LOBF(self.LOBF_x_values)
+                    self.LOBF_coefficients = np.polyfit(self.x_axis_data_list, self.y_axis_data_list, 1) # get coefficients
+                    self.LOBF = np.poly1d(self.LOBF_coefficients) # polyID will create a function from the coefficients
+                    print(f'LOBF coefficients: {self.LOBF_coefficients}')
+                    print(f'LOBF function: {self.LOBF}')
+                    self.LOBF_x_values = np.linspace(min(self.x_axis_data_list), max(self.x_axis_data_list), 100) #generate lots of x points
+                    self.LOBF_y_values = self.LOBF(self.LOBF_x_values) # then substiture in
                     
                     self.ax.plot(self.LOBF_x_values,
                                 self.LOBF_y_values,
@@ -1175,8 +1254,13 @@ class root(tk.Tk):
                                 markersize=5,
                                 label='LOBF')
                 
+                
+                # LEGEND
+                
                 if self.fig_data[self.current_figures[self.plot_num - 1]]['show_legend'] == 'on':
-                    self.legend = self.ax.legend()
+                    self.legend = self.ax.legend() # create legend using matplotlib
+                    
+                    #configure some colours
                     self.legend.get_frame().set_facecolor(secondary)
                     self.legend.get_frame().set_edgecolor(contrast_colour)
                     #self.legend.get_frame().set_color(contrast_colour)
@@ -1184,10 +1268,15 @@ class root(tk.Tk):
                     for text in self.legend.get_texts():
                         text.set_color(contrast_colour)
                 
+                # TITLES
+                
+                
                 #add titles
                 self.ax.set_title(self.current_figures[self.plot_num - 1])
                 self.ax.set_xlabel(self.x_axis_data_title)
                 self.ax.set_ylabel(self.y_axis_data_title)
+                
+                # SPINES
                 
                 #spines
                 if self.fig_data[self.current_figures[self.plot_num - 1]]['north_spine'] == 1:
@@ -1237,12 +1326,12 @@ class root(tk.Tk):
         #clear all tabs
         for widget in self.left_frame.main_tabview.graph_tab_frame.winfo_children():
             widget.pack_forget()
-        # for widget in self.right_frame.top_right_frame.data_tab_frame.winfo_children():
-        #     widget.pack_forget()
-        for widget in self.right_frame.top_right_frame.appearance_tab_frame.winfo_children():
+        for widget in self.left_frame.main_tabview.data_tab_frame.winfo_children():
             widget.pack_forget()
-        # for widget in self.right_frame.top_right_frame.modify_tab_frame.winfo_children():
-        #     widget.pack_forget()
+        for widget in self.left_frame.main_tabview.appearance_tab_frame.winfo_children():
+            widget.pack_forget()
+        for widget in self.right_frame.top_right_frame.modify_tab_frame.winfo_children():
+            widget.pack_forget()
         
         
         self.file_active = False
@@ -1256,10 +1345,13 @@ class root(tk.Tk):
         
         if self.file_active == True:
             
+            # only runs if a file is active
             self.bottom.main_buttons_frame.close_file_button.grid(row=0, column=1, padx=(5, 0), pady=(0, 0), sticky="nsew")
             self.grid_columnconfigure(0, weight=3)
             self.grid_columnconfigure(1, weight=1)
             self.bottom.main_buttons_frame.main_button.configure(text="RUN")
+            
+            #reconfigure grids
             
             self.bottom.grid_rowconfigure(0, weight=1)
             self.bottom.grid_rowconfigure(1, weight=1)
@@ -1281,7 +1373,7 @@ class root(tk.Tk):
             
     def change_fig(self, plot):
         
-        self.run_tool(self.filename)
+        self.run_tool(self.filename) # run the tool with the selected file
         print(f"debug: {plot}")
         self.left_frame.current_figure_frame.current_figure_dropdown.set(plot)
         
@@ -1292,13 +1384,15 @@ class root(tk.Tk):
         self.show_fig_options(self.plot_type)
         
     def save_figure(self):
-        directory = 'exports/graphs'
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+        directory = 'exports/graphs' # set target directory
+        if not os.path.exists(directory): # check if directory exists
+            os.makedirs(directory) # create directory if it doesnt exist
         try:
+            # create a png file of the figure at 300 dots per inch
             self.fig.savefig(os.path.join(directory, f'figure[{dt.datetime.now().strftime("%Y-%m-%d")}].png'), dpi=300)
         except AttributeError:
             print("no figure to save")
+            self.terminal_callback("No figure to save - Please add a plot", "soft")
         
     def update_json_callback(self, field_to_edit, new_value_widget):
         self.selected_figure = self.left_frame.current_figure_frame.current_figure_dropdown.get()
@@ -1306,14 +1400,15 @@ class root(tk.Tk):
         self.fig_data[self.selected_figure][field_to_edit] = str(new_value_widget.get())
         print(self.fig_data)
         
-        self.json_data = json.dumps(self.fig_data, indent=4)
+        self.json_data = json.dumps(self.fig_data, indent=4) # indents sepeicfies the format of the json
         with open('fig_data.json', 'w') as file:
             file.write(self.json_data)
 
-    def add_fig_callback(self, fig_name):
+    def add_fig_callback(self, fig_name): # when a figure is added
         
         self.run_tool(self.filename)
         
+        #remove the 'No figures created' string from the list
         if self.current_figures[0] == 'No figures created':
             self.current_figures.pop(0)
             self.left_frame.current_figure_frame.current_figure_dropdown.configure(state='normal')
@@ -1324,9 +1419,9 @@ class root(tk.Tk):
         self.left_frame.current_figure_frame.current_figure_dropdown_test.configure(values=self.current_figures)
         print(self.current_figures)
         
-        global fig_counter
+        global fig_counter # globabl for convenience
         fig_counter+=1
-        self.left_frame.current_figure_frame.toplevel_window.destroy()
+        self.left_frame.current_figure_frame.toplevel_window.destroy() #destroy toplevel window
         self.left_frame.current_figure_frame.current_figure_dropdown.set(fig_name)
         
         #split the string at the first hyphen and take the first part
@@ -1335,7 +1430,7 @@ class root(tk.Tk):
         
         self.show_fig_options(self.plot_type)
     
-    def remove_fig(self):
+    def remove_fig(self): #handles cases for what to do when a figure is removed
         
         self.current_figures.remove(self.left_frame.current_figure_frame.current_figure_dropdown.get())
         
@@ -1356,18 +1451,19 @@ class root(tk.Tk):
         try:
             self.change_fig_options = True
             self.left_frame.current_figure_frame.current_figure_dropdown.set(self.current_figures[-1])
-        except IndexError:
+        except IndexError: #if there are no figures before
             try:
                 self.change_fig_options = True
-                self.left_frame.current_figure_frame.current_figure_dropdown.set(self.current_figures[+1])
-            except IndexError:
+                self.left_frame.current_figure_frame.current_figure_dropdown.set(self.current_figures[+1]) #set to the figure after
+            except IndexError: # if there are no figures before or after
+                # disable the dropdowns
                 self.change_fig_options = False
                 self.current_figures.append('No figures created')
                 self.left_frame.current_figure_frame.current_figure_dropdown.set(self.current_figures[0])
                 self.left_frame.current_figure_frame.current_figure_dropdown.configure(state='disabled')
                 self.left_frame.current_figure_frame.current_figure_dropdown_test.configure(state='disabled')
         
-        
+        # update the dropdowns to have the new values
         self.left_frame.current_figure_frame.current_figure_dropdown.configure(values=self.current_figures)
         self.left_frame.current_figure_frame.current_figure_dropdown_test.configure(values=self.current_figures)
         
@@ -1376,19 +1472,25 @@ class root(tk.Tk):
         
         if self.change_fig_options == True:
             print(self.left_frame.current_figure_frame.current_figure_dropdown.get())
-            self.show_fig_options((self.left_frame.current_figure_frame.current_figure_dropdown.get()))
+            self.show_fig_options((self.left_frame.current_figure_frame.current_figure_dropdown.get())) #recall the function to update the options in the tabview
             
         self.run_tool(self.filename)
         
     def show_fig_options(self, fig):
         
-        fig = fig.split("-", 1)[0]
+        fig = fig.split("-", 1)[0] # separate the figure name from the data - plot-1 -> plot
         
         # clear the frame
         for widget in self.left_frame.main_tabview.graph_tab_frame.winfo_children():
             widget.pack_forget()
             
+        for widget in self.left_frame.main_tabview.data_tab_frame.winfo_children():
+            widget.pack_forget()
+            
         for widget in self.left_frame.main_tabview.appearance_tab_frame.winfo_children():
+            widget.pack_forget()
+        
+        for widget in self.left_frame.main_tabview.modify_tab_frame.winfo_children():
             widget.pack_forget()
         
         match fig:
@@ -1434,6 +1536,22 @@ class root(tk.Tk):
                     self.graph_tab.show_best_fit_line_frame.show_best_fit_line_checkbox.deselect()
                 
                 
+                # DATA TAB
+                
+                self.data_tab = self.left_frame.main_tabview.data_tab_frame
+                
+                self.data_tab.main_calculation_button_frame = main_calculation_button_frame(parent = self.data_tab, root = self, width = self.width, height = self.height)
+                self.data_tab.main_calculation_button_frame.pack(padx=(0, 10), pady=(10, 10), expand = True, fill = "x")
+                
+                self.data_tab.calculation_results_frame = calculation_results_frame(parent = self.data_tab, root = self, width = self.width, height = self.height)
+                self.data_tab.calculation_results_frame.pack(padx=(0, 10), pady=(0, 10), expand = True, fill = "x")
+                
+                self.data_tab.z_score_frame = z_score_frame(parent = self.data_tab, root = self, width = self.width, height = self.height)
+                self.data_tab.z_score_frame.pack(padx=(0, 10), pady=(0, 10), expand = True, fill = "x")
+                
+                self.data_tab.z_score_results_frame = z_score_results_frame(parent = self.data_tab, root = self, width = self.width, height = self.height)
+                self.data_tab.z_score_results_frame.pack(padx=(0, 10), pady=(0, 10), expand = True, fill = "x")
+                
                 # APPEARANCE TAB
                 
                 self.appearance_tab = self.left_frame.main_tabview.appearance_tab_frame
@@ -1463,11 +1581,20 @@ class root(tk.Tk):
                 self.appearance_tab.spine_selector_frame = spine_selector_frame(parent = self.appearance_tab, root = self, width = self.width, height = self.height)
                 self.appearance_tab.spine_selector_frame.pack(padx=(0, 10), pady=(0, 10), expand = True, fill = "x")
                 
+                # MODIFY TAB
+                
+                self.modify_tab = self.left_frame.main_tabview.modify_tab_frame
+                
     def exit_app_callback(self):
         #root.destroy()
         
         with open('current-settings.json', 'r') as file:
             settings_data = json.load(file)
+        
+        #check to see if the launcher should be kept open when the app is opened
+        
+        #if the value is false, open the exit dialogue
+        #if the value is true, close the app
         
         if settings_data["keep_launcher_open_on_app_launch"] == "False": #will cause error if value is changed from launcher while app is running
             if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
@@ -1479,32 +1606,156 @@ class root(tk.Tk):
     
     def terminal_callback(self, text, type):
         
+        #Used for debugging issues with users input
+        
         with open('current-settings.json', 'r') as file:
             settings_data = json.load(file)
             
         if settings_data["show_date_in_terminal"] == "True":
-            date_if_enabled = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            date_if_enabled = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S") # get the current date and time
+            # FORMAT : (year-month-day hour:minute:second) example: [2021-01-01 12:00:00]
             formatted_date_if_enabled = f"[{date_if_enabled}]"
         else:
-            formatted_date_if_enabled = ""
+            formatted_date_if_enabled = "" # if date is disabled, just leave it blank and show it anyway
             
         match type:
             case "soft":
+                # for soft errors - minor issues/information
                 self.right_frame.bottom_right_frame.terminal_frame.terminal.configure(state = "normal")
                 self.right_frame.bottom_right_frame.terminal_frame.terminal.insert("end", f"{formatted_date_if_enabled} > {text}\n\n")
                 self.right_frame.bottom_right_frame.terminal_frame.terminal.configure(state = "disabled")
             case "hard":
+                # for hard errors - key bits of info, it adds more spacing and a divider to clearly seperate the before and after
                 self.right_frame.bottom_right_frame.terminal_frame.terminal.configure(state = "normal")
                 self.right_frame.bottom_right_frame.terminal_frame.terminal.insert("end", f"{formatted_date_if_enabled} > {text}\n\n----------\n\n")
                 self.right_frame.bottom_right_frame.terminal_frame.terminal.configure(state = "disabled")
+    
+    def calculate(self):
+        print(self.current_figures)
+        print(self.plot_num)
+        
+        match (self.current_figures[self.plot_num - 2]).split("-", 1)[0]:
+            case 'plot':
+                
+                #calcualate mean, mode, median, range, variance, standard deviation, and quartiles
+                print(self.fig_data[self.current_figures[self.plot_num - 2]]['x_data'])
+                
+                self.x = self.fig_data[self.current_figures[self.plot_num - 2]]['x_data']
+                self.y = self.fig_data[self.current_figures[self.plot_num - 2]]['y_data']
+                
+                #cast all to int
+                self.x = [int(i) for i in self.x]
+                self.y = [int(i) for i in self.y]
+                
+                # MEAN
+                
+                self.mean = sum(self.y) / len(self.y)
+                
+                # MODE
+                
+                self.mode = max(set(self.y), key = self.y.count)
+                
+                # MEDIAN
+                
+                #make new sorted list
+                self.y_sorted = sorted(self.y)
+                self.n = len(self.y_sorted)
+                if self.n % 2 == 0:
+                    self.median = (self.y_sorted[self.n//2 - 1] + self.y_sorted[self.n//2]) / 2
+                else:
+                    self.median = self.y_sorted[self.n//2]
+                    
+                # RANGE
+                
+                self.range = max(self.y) - min(self.y)
+                
+                # IQ RANGE
+                
+                self.q1, self.q3 = np.percentile(self.y, [25, 75])
+                self.iq_range = self.q3 - self.q1
+                
+                # VARIANCE
+                self.variance = sum((i - self.mean) ** 2 for i in self.y) / len(self.y)
 
-
+                # STANDARD DEVIATION
+                self.std_dev = round(self.variance ** 0.5, 2)
+                
+                print(f'\n\nALL DATA:\nMEAN: {self.mean}\nMODE: {self.mode}\nMEDIAN: {self.median}\nRANGE: {self.range}\nINTERQUARTILE RANGE: {self.iq_range}\nVARRIANCE: {self.variance}\nSTANDARD DEVIATION: {self.std_dev}\n\n')
+                
+                self.show_calculation_results()
+                
+    def show_calculation_results(self):
+        
+        self.left_frame.main_tabview.data_tab_frame.calculation_results_frame.calculation_results_textbox.configure(state='normal')
+        
+        #add all the data to the textbox
+        self.left_frame.main_tabview.data_tab_frame.calculation_results_frame.calculation_results_textbox.delete(0.0, "end")
+        self.left_frame.main_tabview.data_tab_frame.calculation_results_frame.calculation_results_textbox.insert("0.0", f"RESULTS (OUTPUT) :\n\nMEAN: {self.mean}\nMODE: {self.mode}\nMEDIAN: {self.median}\nRANGE: {self.range}\nINTERQUARTILE RANGE: {self.iq_range}\nVARRIANCE: {self.variance}\nSTANDARD DEVIATION: {self.std_dev}")
+        self.left_frame.main_tabview.data_tab_frame.calculation_results_frame.calculation_results_textbox.configure(state='disabled')
+        
+    def calculate_z_score(self):
+        
+        self.calculate()
+        
+        try:
+        
+            self.area = self.left_frame.main_tabview.data_tab_frame.z_score_frame.z_score_entry.get() # get the obsrved value
+            print(self.area)
+            
+            self.z_score = (int(self.area) - self.mean) / self.std_dev #formula for z-score
+            
+            self.left_frame.main_tabview.data_tab_frame.z_score_results_frame.z_score_results_textbox.configure(state='normal')
+            
+            self.left_frame.main_tabview.data_tab_frame.z_score_results_frame.z_score_results_textbox.delete(0.0, "end")
+            self.left_frame.main_tabview.data_tab_frame.z_score_results_frame.z_score_results_textbox.insert("0.0", f"Z-SCORE: {self.z_score}")
+            self.left_frame.main_tabview.data_tab_frame.z_score_results_frame.z_score_results_textbox.configure(state='disabled')
+            
+        except ValueError:
+            self.terminal_callback("Error - Invalid Z-Score Area", "soft")
+    
+    def save_calculation_results(self):
+        self.target_dir = 'exports/calculations'
+        
+        if not os.path.exists(self.target_dir):
+            os.makedirs(self.target_dir)
+            
+        with open(os.path.join(self.target_dir, f'calculations[{dt.datetime.now().strftime("%Y-%m-%d")}].txt'), 'w') as file:
+            try:
+                file.write(self.left_frame.main_tabview.data_tab_frame.calculation_results_frame.calculation_results_textbox.get(0.0, "end"))
+            except:
+                self.terminal_callback("Error - No calculation results to save", "soft")
+    
+    def export_lists_as_txt(self):
+        
+        self.target_dir = 'exports/lists'
+        
+        if not os.path.exists(self.target_dir):
+            os.makedirs(self.target_dir)
+        
+        with open(os.path.join(self.target_dir, f'list[{dt.datetime.now().strftime("%Y-%m-%d")}].txt'), 'w') as file:
+            try:
+                
+                #get previous data
+                print(f'plot num: {self.plot_num}\n\n')
+                print(f'fig_data: {self.fig_data}\n\n')
+                print(f'current figures: {self.current_figures}\n\n')
+                print(f'current figure: {self.current_figures[self.plot_num - 1]}\n\n')
+                print(f'current figure x data: {self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']}\n\n')
+                
+                #write all
+                file.write(f'X DATA:\n{self.fig_data[self.current_figures[self.plot_num - 1]]['x_data']}\n\nY DATA:\n{self.fig_data[self.current_figures[self.plot_num - 1]]['y_data']}\n\n')
+            except:
+                self.terminal_callback("Error - No list to save", "soft")
+        
+        
 if __name__ == "__main__":
     
     with open('themes.json', 'r') as file:
         themes_data = json.load(file)
     
-    global contrast_colour
+    global contrast_colour # global variable for contrast colour
+    # if theme is dark - set contrast colour to white
+    # if theme is light - set contrast colour to black
     
     match active_theme_type:
         case 'light':
@@ -1518,5 +1769,5 @@ if __name__ == "__main__":
             contrast_colour = "#FFFFFF"
     
     root = root()
-    root.protocol("WM_DELETE_WINDOW", root.exit_app_callback)
+    root.protocol("WM_DELETE_WINDOW", root.exit_app_callback) # if the window is closed, run the exit_app_callback function
     root.mainloop()

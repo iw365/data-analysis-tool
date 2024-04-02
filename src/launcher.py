@@ -23,8 +23,11 @@ class option_holder(ctk.CTkFrame):
         app_launch_button = ctk.CTkButton(master=self, width = self.width - 80, height = self.height / 5, text='launch app', command = self.launch_app_call)
         app_launch_button.grid(row=0, column=0, padx=20, pady=20)
         
+        ml_app_launch_button = ctk.CTkButton(master=self, width = self.width - 80, height = self.height / 5, text='launch machine-learning-app', command = self.launch_ml_app_call)
+        ml_app_launch_button.grid(row=1, column=0, padx=20, pady=(0,20))
+        
         open_root_button = ctk.CTkButton(master=self, width = self.width - 80, height = self.height / 5, text='open root folder', command = self.open_root_folder)
-        open_root_button.grid(row=1, column=0, padx=20, pady=(0,20))
+        open_root_button.grid(row=2, column=0, padx=20, pady=(0,20))
         
     def launch_app_call(self):
         self.get_settings()
@@ -37,6 +40,18 @@ class option_holder(ctk.CTkFrame):
             root.destroy()
             
         launch_app_reg('main.py')
+        
+    def launch_ml_app_call(self):
+        self.get_settings()
+        
+        #read data
+        with open('current-settings.json', 'r') as file:
+            settings_data = json.load(file)
+        
+        if settings_data["keep_launcher_open_on_app_launch"] == "False":
+            root.destroy()
+            
+        launch_app_reg('ML-app.py')
         
     def get_settings(self):
         print('getting settings', launcher_permittivity_enabled.get())

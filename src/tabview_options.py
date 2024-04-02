@@ -141,6 +141,130 @@ class show_best_fit_line_frame(ctk.CTkFrame):
                                                             font=("Roboto", 12))
             self.show_best_fit_line_checkbox.grid(row=0, column=0, padx=(0, 5), pady=(0, 0), sticky='ew')
 
+# DATA OPTIONS #
+
+class main_calculation_button_frame(ctk.CTkFrame):
+    def __init__(self, parent, root, width, height):
+        self.width = width / 2
+        self.height = height / 30
+        super().__init__(parent,
+                        width=self.width,
+                        height=self.height,
+                        fg_color=secondary,
+                        corner_radius = 10)
+        self.root = root
+        
+        self.pack_propagate(False)
+        self.grid_propagate(False)
+        
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+            
+            self.main_calculation_button = ctk.CTkButton(master=self,
+                                                            text='Calculate',
+                                                            fg_color=(accent1, primary),
+                                                            hover_color=(accent1_light, accent2),
+                                                            corner_radius=10,
+                                                            font=("Roboto", 12),
+                                                            command=lambda: self.root.calculate())
+            self.main_calculation_button.grid(row=0, column=0, padx=(0, 5), pady=(0, 0), sticky='ew')
+
+class calculation_results_frame(ctk.CTkFrame):
+    def __init__(self, parent, root, width, height):
+        self.width = width / 2
+        self.height = height / 4
+        super().__init__(parent,
+                        width=self.width,
+                        height=self.height,
+                        fg_color=secondary,
+                        corner_radius = 10)
+        self.root = root
+        
+        self.pack_propagate(False)
+        self.grid_propagate(False)
+        
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+            
+            self.calculation_results_textbox = ctk.CTkTextbox(master=self,
+                                                            width=self.width/3,
+                                                            height=self.height,
+                                                            fg_color=(accent1, primary),
+                                                            corner_radius=10,
+                                                            font=("Roboto", 12),
+                                                            state = 'normal',)
+            self.calculation_results_textbox.grid(row=0, column=0, padx=(0, 5), pady=(0, 0), sticky='ew')
+            
+            self.calculation_results_textbox.delete(0.0, "end")
+            self.calculation_results_textbox.insert(0.0, "Results will be displayed here")
+            self.calculation_results_textbox.configure(state='disabled')
+            
+class z_score_frame(ctk.CTkFrame):
+    def __init__(self, parent, root, width, height):
+        self.width = width / 2
+        self.height = height / 30
+        super().__init__(parent,
+                        width=self.width,
+                        height=self.height,
+                        fg_color=secondary,
+                        corner_radius = 10)
+        self.root = root
+        
+        self.pack_propagate(False)
+        self.grid_propagate(False)
+        
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+            
+            self.z_score_entry = ctk.CTkEntry(master=self,
+                                                placeholder_text='Area to test Z-score',
+                                                fg_color=(accent1, primary),
+                                                corner_radius=10,
+                                                            font=("Roboto", 12))
+            self.z_score_entry.grid(row=0, column=0, padx=(0, 5), pady=(0, 0), sticky='ew')
+            
+            self.z_score_button = ctk.CTkButton(master=self,
+                                                text='Calculate Z-Score',
+                                                fg_color=(accent1, primary),
+                                                hover_color=(accent1_light, accent2),
+                                                corner_radius=10,
+                                                font=("Roboto", 12),
+                                                command=lambda: self.root.calculate_z_score())
+            self.z_score_button.grid(row=0, column=1, padx=(0, 5), pady=(0, 0), sticky='ew')
+            
+class z_score_results_frame(ctk.CTkFrame):
+    def __init__(self, parent, root, width, height):
+        self.width = width / 2
+        self.height = height / 4
+        super().__init__(parent,
+                        width=self.width,
+                        height=self.height,
+                        fg_color=secondary,
+                        corner_radius = 10)
+        self.root = root
+        
+        self.pack_propagate(False)
+        self.grid_propagate(False)
+        
+        self.initialise_ui()
+        
+    def initialise_ui(self):
+            
+            self.z_score_results_textbox = ctk.CTkTextbox(master=self,
+                                                            width=self.width/3,
+                                                            height=self.height,
+                                                            fg_color=(accent1, primary),
+                                                            corner_radius=10,
+                                                            font=("Roboto", 12),
+                                                            state = 'normal',)
+            self.z_score_results_textbox.grid(row=0, column=0, padx=(0, 5), pady=(0, 0), sticky='ew')
+            
+            self.z_score_results_textbox.delete(0.0, "end")
+            self.z_score_results_textbox.insert(0.0, "Z-Score will be displayed here")
+            self.z_score_results_textbox.configure(state='disabled')
 
 # APPEARANCE OPTIONS #
 
